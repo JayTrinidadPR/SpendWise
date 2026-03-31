@@ -142,11 +142,14 @@ erDiagram
 ## 🧩 Wireframes
 
 *Initial wireframes for the application are included below:*
-![landing-page](wireframe.png)
+![landing-page](LandingPage.png)
 ```
-/wireframes/
-  ├── home.png
-  ├── dashboard.png
-  ├── add-expense.png
-  └── balances.png
+images/wireframes/
+  ├── LandingPage.png
+  ├── Dashboard.png
+  ├── Expenses.png
+  ├── Income.png
+  ├── Insight
+  └── Register.png
+ 
 ```

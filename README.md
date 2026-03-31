@@ -63,13 +63,16 @@ These features are planned to expand SpendWise beyond the MVP:
 
 The current database schema for the MVP includes four main tables:
 
-### `users`
 
-- `id` - primary key
-- `username` - unique username
-- `email` - unique email
-- `password_hash` - hashed password
-- `created_at` - timestamp
+```mermaid
+erDiagram
+    USERS {
+        UUID id PK
+        TEXT username
+        TEXT email
+        TEXT password_hash 
+        TIMESTAMP created_at
+    }
 
 ### `income_sources`
 

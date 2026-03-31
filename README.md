@@ -153,3 +153,43 @@ images/wireframes/
   └── Register.png
  
 ```
+
+## ⚙️ Installation & Setup
+
+### 💻 Local Demo Mode
+
+This is the easiest way to run SpendWise for testing:
+
+```bash
+# install backend dependencies
+npm install --prefix backend
+
+# install frontend dependencies
+npm install --prefix frontend
+
+# start backend
+npm run dev --prefix backend
+
+# start frontend
+npm run dev --prefix frontend
+```
+
+### 🗃️ Full PostgreSQL Setup
+
+```bash
+# create your database
+# then run the schema
+psql your_database_url -f backend/db/schema.sql
+
+# seed categories
+npm run db:seed --prefix backend
+```
+
+## 🔮 Future Improvements
+
+- Debt payoff planner with snowball strategy
+- Monthly savings goals and category caps
+- Exportable reports
+- Better analytics over time
+- Mobile optimization and more responsive polish
+- Receipt upload and categorization

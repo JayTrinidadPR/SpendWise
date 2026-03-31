@@ -142,7 +142,7 @@ erDiagram
 ## 🧩 Wireframes
 
 *Initial wireframes for the application are included below:*
-![landing-page](LandingPage.png)
+![landing-page](images/wireframe/LandingPage.png)
 ```
 images/wireframes/
   ├── LandingPage.png

@@ -139,3 +139,14 @@ erDiagram
 - `GET /api/dashboard/summary` - Get income, expense, and balance summary
 - `GET /api/dashboard/category-insights` - Get expense totals grouped by category
 
+## 🧩 Wireframes
+
+*Initial wireframes for the application are included below:*
+![landing-page](wireframe.png)
+```
+/wireframes/
+  ├── home.png
+  ├── dashboard.png
+  ├── add-expense.png
+  └── balances.png
+```

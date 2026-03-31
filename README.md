@@ -50,3 +50,52 @@ These features are planned to expand SpendWise beyond the MVP:
 - Recurring expense automation
 - Downloadable or exportable monthly summary
 - More advanced financial analytics and trends
+
+## 🛠️ Tech Stack
+
+- Frontend: React, React Router, Vite, Recharts
+- Backend: Node.js, Express
+- Database: PostgreSQL
+- Authentication: JSON Web Tokens (JWT) with hashed passwords
+- Local testing mode: Demo datastore for browser testing without Postgres setup
+
+## 🗄️ Database Design
+
+The current database schema for the MVP includes four main tables:
+
+### `users`
+
+- `id` - primary key
+- `username` - unique username
+- `email` - unique email
+- `password_hash` - hashed password
+- `created_at` - timestamp
+
+### `income_sources`
+
+- `id` - primary key
+- `user_id` - foreign key to users
+- `source_name` - name of income source
+- `amount` - income amount
+- `frequency` - weekly, biweekly, twice monthly, or monthly
+- `pay_date_1` - optional fixed pay date
+- `pay_date_2` - optional second pay date
+- `is_active` - whether source is active
+- `created_at` - timestamp
+
+### `categories`
+
+- `id` - primary key
+- `name` - category name
+
+### `expenses`
+
+- `id` - primary key
+- `user_id` - foreign key to users
+- `category_id` - foreign key to categories
+- `title` - expense title
+- `amount` - expense amount
+- `expense_date` - date of expense
+- `is_recurring` - recurring flag
+- `recurring_frequency` - recurring cadence if applicable
+- `created_at` - timestamp

@@ -63,42 +63,47 @@ These features are planned to expand SpendWise beyond the MVP:
 
 The current database schema for the MVP includes four main tables:
 
-
 ```mermaid
 erDiagram
     USERS {
         UUID id PK
         TEXT username
         TEXT email
-        TEXT password_hash 
+        TEXT password_hash
         TIMESTAMP created_at
     }
 
-### `income_sources`
+    INCOME_SOURCES {
+        UUID id PK
+        UUID user_id FK
+        TEXT source_name
+        NUMERIC amount
+        TEXT frequency
+        INTEGER pay_date_1
+        INTEGER pay_date_2
+        BOOLEAN is_active
+        TIMESTAMP created_at
+    }
 
-- `id` - primary key
-- `user_id` - foreign key to users
-- `source_name` - name of income source
-- `amount` - income amount
-- `frequency` - weekly, biweekly, twice monthly, or monthly
-- `pay_date_1` - optional fixed pay date
-- `pay_date_2` - optional second pay date
-- `is_active` - whether source is active
-- `created_at` - timestamp
+    CATEGORIES {
+        UUID id PK
+        TEXT name
+    }
 
-### `categories`
+    EXPENSES {
+        UUID id PK
+        UUID user_id FK
+        UUID category_id FK
+        TEXT title
+        NUMERIC amount
+        DATE expense_date
+        BOOLEAN is_recurring
+        TEXT recurring_frequency
+        TIMESTAMP created_at
+    }
 
-- `id` - primary key
-- `name` - category name
+    USERS ||--o{ INCOME_SOURCES : user_id
+    USERS ||--o{ EXPENSES : user_id
+    CATEGORIES ||--o{ EXPENSES : category_id
 
-### `expenses`
-
-- `id` - primary key
-- `user_id` - foreign key to users
-- `category_id` - foreign key to categories
-- `title` - expense title
-- `amount` - expense amount
-- `expense_date` - date of expense
-- `is_recurring` - recurring flag
-- `recurring_frequency` - recurring cadence if applicable
-- `created_at` - timestamp
+```

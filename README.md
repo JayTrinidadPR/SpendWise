@@ -138,3 +138,4 @@ erDiagram
 
 - `GET /api/dashboard/summary` - Get income, expense, and balance summary
 - `GET /api/dashboard/category-insights` - Get expense totals grouped by category
+

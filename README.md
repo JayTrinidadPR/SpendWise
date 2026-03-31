@@ -107,3 +107,34 @@ erDiagram
     CATEGORIES ||--o{ EXPENSES : category_id
 
 ```
+
+## 🔌 Possible API Endpoints
+
+### 🔐 Auth
+
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Authenticate user
+- `GET /api/auth/me` - Get current authenticated user
+
+### 🏷️ Categories
+
+- `GET /api/categories` - Get all available expense categories
+
+### 💵 Income
+
+- `GET /api/income` - Get all income sources for a user
+- `POST /api/income` - Create a new income source
+- `PUT /api/income/:id` - Update an income source
+- `DELETE /api/income/:id` - Delete an income source
+
+### 🧾 Expenses
+
+- `GET /api/expenses` - Get all expenses for a user
+- `POST /api/expenses` - Create a new expense
+- `PUT /api/expenses/:id` - Update an expense
+- `DELETE /api/expenses/:id` - Delete an expense
+
+### 📊 Dashboard
+
+- `GET /api/dashboard/summary` - Get income, expense, and balance summary
+- `GET /api/dashboard/category-insights` - Get expense totals grouped by category

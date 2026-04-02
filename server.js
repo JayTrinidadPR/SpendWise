@@ -1,6 +1,7 @@
 require("dotenv").config();// Load environment variables from .env file
 const express = require("express");// Import the Express framework
 const client = require("./db/client"); // Import the database client
+const path = require("path");// Import the path module for handling file paths
 
 
 
@@ -9,10 +10,8 @@ const PORT = process.env.PORT || 3000;
 
 
 app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(express.static(path.join(__dirname, "public"))); // Serve static files from the "public" directory
 
-app.get("/", (req, res) => { // sends a message when the root route is accessed
-    res.send("Hello, World!"); // Send a simple "Hello, World!" message as the response
-});
 
 app.get("/users", async (req, res) => { // sends a message when the /users route is accessed
     try {

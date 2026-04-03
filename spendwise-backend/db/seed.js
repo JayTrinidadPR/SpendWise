@@ -12,11 +12,21 @@ async function seedDatabase() {
         await createTables();
 
         await client.query(`
+            INSERT INTO expenses (title, amount, category)
+            VALUES
+            ('Rent', 1200.00, 'Housing'),
+            ('Groceries', 84.50, 'Food'),
+            ('Gas', 45.00, 'Transportation');
+        `);
+
+        await client.query(`
             INSERT INTO users (username, email)
             VALUES
             ('alice', 'alice@example.com'),
             ('bob', 'bob@example.com');
         `);
+
+
         console.log("Database seeded with initial data.");
     } catch (error) {
         console.error("Error seeding database:", error);

@@ -6,9 +6,8 @@ async function seedDatabase() {
         await client.connect();
         console.log("Connected to the database.");
 
-       
         await client.query("DROP TABLE IF EXISTS expenses;");
-         await client.query("DROP TABLE IF EXISTS users;");
+        await client.query("DROP TABLE IF EXISTS users;");
         console.log("Dropped old tables.");
 
         await createTables();

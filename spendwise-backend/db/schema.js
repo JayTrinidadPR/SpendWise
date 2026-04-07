@@ -20,7 +20,6 @@ async function createTables() {
             );
         `);
 
-
         console.log("Tables created.");
     } catch (error) {
         console.error("Error creating tables:", error);
@@ -28,5 +27,5 @@ async function createTables() {
     }
 }
 module.exports = {
-    createTables
+    createTables,
 };

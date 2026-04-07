@@ -8,50 +8,50 @@ app.innerHTML = `
   <main class="page">
     <section class="card">
       <p class="eyebrow">SpendWise</p>
-      <h1>Frontend Test</h1>
-      <p class="description">This frontend is calling the deployed backend API.</p>
-      <button id="loadUsersBtn" class="button">Load Users</button>
+      <h1>Expense Tracker Test</h1>
+      <p class="description">This page loads expense data from the SpendWise backend API.</p>
+      <button id="loadExpensesBtn" class="button">Load Expenses</button>
       <p id="status" class="status">Ready</p>
-      <ul id="usersList" class="users-list"></ul>
+      <ul id="expensesList" class="expenses-list"></ul>
     </section>
   </main>
 `;
 
-const loadUsersBtn = document.querySelector("#loadUsersBtn");
-const usersList = document.querySelector("#usersList");
+const loadExpensesBtn = document.querySelector("#loadExpensesBtn");
+const expensesList = document.querySelector("#expensesList");
 const status = document.querySelector("#status");
 
-async function loadUsers() {
-  status.textContent = "Loading users...";
+async function loadExpenses() {
+  status.textContent = "Loading expenses...";
 
   try {
-    const response = await fetch(`${apiBaseUrl}/api/users`);
+    const response = await fetch(`${apiBaseUrl}/api/expenses`);
 
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }
 
-    const users = await response.json();
-    usersList.innerHTML = "";
+    const expenses = await response.json();
+    expensesList.innerHTML = "";
 
-    if (!users.length) {
-      usersList.innerHTML = "<li>No users found.</li>";
-      status.textContent = "Loaded 0 users.";
+    if (!expenses.length) {
+      expensesList.innerHTML = "<li>No expenses found.</li>";
+      status.textContent = "Loaded 0 expenses.";
       return;
     }
 
-    users.forEach((user) => {
+    expenses.forEach((expense) => {
       const li = document.createElement("li");
-      li.textContent = `${user.username} (${user.email})`;
-      usersList.appendChild(li);
+      li.textContent = `${expense.title} - $${expense.amount} (${expense.category})`;
+      expensesList.appendChild(li);
     });
 
-    status.textContent = `Loaded ${users.length} user(s).`;
+    status.textContent = `Loaded ${expenses.length} expense(s).`;
   } catch (error) {
-    console.error("Error loading users:", error);
-    usersList.innerHTML = "<li>Failed to load users.</li>";
-    status.textContent = "Request failed. Check the API URL and CORS settings.";
+    console.error("Error loading expenses:", error);
+    expensesList.innerHTML = "<li>Failed to load expenses.</li>";
+    status.textContent = "Request failed. Check that the backend server is running and returning expenses.";
   }
 }
 
-loadUsersBtn.addEventListener("click", loadUsers);
+loadExpensesBtn.addEventListener("click", loadExpenses);

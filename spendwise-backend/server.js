@@ -17,32 +17,12 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
-app.get("/api/users", async (req, res) => {
-  try {
-    const result = await client.query("SELECT * FROM users;");
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
 app.get("/api/expenses", async (req, res) => {
   try {
     const result = await client.query("SELECT * FROM expenses;");
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching expenses:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-app.get("/users", async (req, res) => {
-  try {
-    const result = await client.query("SELECT * FROM users;");
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching users:", error);
     res.status(500).json({ error: "Server error" });
   }
 });

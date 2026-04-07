@@ -19,7 +19,7 @@ app.innerHTML = `
       <input id="amountInput" name="amount" type"number" step="0.01" required/>
 
       <label for ="categoryInput">Category:<label>
-      <input id="category" name="category" type="text" required/>
+      <input id="categoryInput" name="category" type="text" required/>
 
       <button type="submit" class="button">Add Expense</button>
       </form>
@@ -76,6 +76,14 @@ async function loadExpenses() {
 }
 function handleExpenseSubmit(event) {
   event.preventDefault();
+console.log("Form submitted");
+  const newExpense = {
+    title: titleInput.value,
+    amount: amountInput.value,
+    category: categoryInput.value,
+  };
+
+  console.log(newExpense);
   status.textContent = "Submitting expense...";
 }
 

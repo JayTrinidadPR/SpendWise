@@ -10,6 +10,20 @@ app.innerHTML = `
       <p class="eyebrow">SpendWise</p>
       <h1>Expense Tracker Test</h1>
       <p class="description">This page loads expense data from the SpendWise backend API.</p>
+
+      <form id="expenseForm">
+      <label for="titleInput">Title:</label>
+      <input id="titleInput" name="title" type="text" required/>
+
+      <lable for"amountInput">Amount:</label>
+      <input id="amountInput" name="amount" type"number" step="0.01" required/>
+
+      <label for ="categoryInput">Category:<label>
+      <input id="category" name="category" type="text" required/>
+
+      <button type="submit" class="button">Add Expense</button>
+      </form>
+
       <button id="loadExpensesBtn" class="button">Load Expenses</button>
       <p id="status" class="status">Ready</p>
       <ul id="expensesList" class="expenses-list"></ul>
@@ -20,6 +34,13 @@ app.innerHTML = `
 const loadExpensesBtn = document.querySelector("#loadExpensesBtn");
 const expensesList = document.querySelector("#expensesList");
 const status = document.querySelector("#status");
+const expenseForm = document.querySelector("#expenseForm");
+const titleInput = document.querySelector("#titleInput");
+const amountInput = document.querySelector("#amountInput");
+const categoryInput = document.querySelector("#categoryInput");
+
+
+expenseForm.addEventListener("submit", handleExpenseSubmit);
 
 async function loadExpenses() {
   status.textContent = "Loading expenses...";
@@ -53,5 +74,11 @@ async function loadExpenses() {
     status.textContent = "Request failed. Check that the backend server is running and returning expenses.";
   }
 }
+function handleExpenseSubmit(event) {
+  event.preventDefault();
+  status.textContent = "Submitting expense...";
+}
+
 
 loadExpensesBtn.addEventListener("click", loadExpenses);
+expenseForm.addEventListener("submit", handleExpenseSubmit);

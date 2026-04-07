@@ -27,6 +27,26 @@ app.get("/api/expenses", async (req, res) => {
   }
 });
 
+app.post("/api/expenses", async (req, res) => {
+  try {
+    const {title, amount, category} = req.body; //using destructuring to get the title, amount, and category from the request body
+
+    const result = await client.query(
+      `
+      INSERT INTO expenses (title, amount, category)
+      VALUES ($1, $2, $3)
+      RETURNING *;
+      `,
+      [title, amount, category]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creating expense:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 async function startServer() {
   try {
     await client.connect();

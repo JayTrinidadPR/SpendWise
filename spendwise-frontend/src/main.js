@@ -74,17 +74,41 @@ async function loadExpenses() {
     status.textContent = "Request failed. Check that the backend server is running and returning expenses.";
   }
 }
-function handleExpenseSubmit(event) {
+async function handleExpenseSubmit(event) {
   event.preventDefault();
-console.log("Form submitted");
+
   const newExpense = {
     title: titleInput.value,
     amount: amountInput.value,
     category: categoryInput.value,
   };
 
-  console.log(newExpense);
   status.textContent = "Submitting expense...";
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/expenses`, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(newExpense),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    titleInput.value = "";
+    amountInput.value = "";
+    categoryInput.value = "";
+
+    status.textContent = "Expense added successfully!";
+    await loadExpenses();
+
+  } catch (error) {
+    console.error("Error submitting expense.", error);
+    status.textContent = "Failed to submit expense.";
+  }
 }
 
 

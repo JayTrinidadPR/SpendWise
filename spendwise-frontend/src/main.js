@@ -15,10 +15,10 @@ app.innerHTML = `
       <label for="titleInput">Title:</label>
       <input id="titleInput" name="title" type="text" required/>
 
-      <lable for"amountInput">Amount:</label>
+      <label for="amountInput">Amount:</label>
       <input id="amountInput" name="amount" type"number" step="0.01" required/>
 
-      <label for ="categoryInput">Category:<label>
+      <label for="categoryInput">Category:</label>
       <input id="categoryInput" name="category" type="text" required/>
 
       <button type="submit" class="button">Add Expense</button>

@@ -29,7 +29,7 @@ app.get("/api/expenses", async (req, res) => {
 
 app.post("/api/expenses", async (req, res) => {
   try {
-    const {title, amount, category} = req.body; //using destructuring to get the title, amount, and category from the request body
+    const {title, amount, category} = req.body;
 
     const result = await client.query(
       `

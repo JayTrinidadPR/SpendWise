@@ -27,6 +27,37 @@ app.get("/api/expenses", async (req, res) => {
   }
 });
 
+app.get("/api/income-sources", async (req, res) => {
+  try {
+    const result = await client.query("SELECT * FROM income_sources;");
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching income sources:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.post("/api/income-sources", async (req, res) => {
+  try {
+    const { source_name, amount, frequency, pay_date_1, pay_date_2 } = req.body;
+    
+    const result = await client.query(
+      `
+      INSERT INTO income_sources (source_name, amount, frequency, pay_date_1, pay_date_2)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *;
+      `,
+      [source_name, amount, frequency, pay_date_1, pay_date_2]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creating income source:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 app.post("/api/expenses", async (req, res) => {
   try {
     const { title, amount, category} = req.body;

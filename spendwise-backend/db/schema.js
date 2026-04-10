@@ -20,6 +20,18 @@ async function createTables() {
             );
         `);
 
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS income_sources (
+                id SERIAL PRIMARY KEY,
+                source_name VARCHAR(100) NOT NULL,
+                amount NUMERIC(10,2) NOT NULL,
+                frequency VARCHAR(20) NOT NULL CHECK (frequency IN ('weekly', 'biweekly', 'monthly')),
+                pay_date_1 INTEGER NOT NULL,
+                pay_date_2 INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
         console.log("Tables created.");
     } catch (error) {
         console.error("Error creating tables:", error);

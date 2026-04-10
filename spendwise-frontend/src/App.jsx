@@ -40,6 +40,41 @@ function App() {
             setStatus("Failed to add expense.");
         }
     }
+
+    async function handleExpenseDelete(event) {
+        event.preventDefault();
+
+        const deleteExpense = {
+            title,
+            amount: parseFloat(amount),
+            category,
+        };
+
+        try {
+            const response = await fetch(`${apiBaseUrl}/api/expenses`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(deleteExpense),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+            setTitle("");
+            setAmount("");
+            setCategory("");
+            setStatus("Expense deleted successfully.");
+
+            await loadExpenses();
+        } catch (error) {
+            console.error("Error deleting expense:", error);
+            setStatus("Failed to delete expense.");
+        }
+    }
+
+
     async function loadExpenses() {
         setStatus("Loading expenses...");
 
@@ -65,7 +100,7 @@ function App() {
                 <p className="eyebrow">SpendWise</p>
                 <h1>Expense Tracker</h1>
                 <p className="description">
-                    This page lets you create and view expenses from the SpendWise backend API.
+                    This page lets you create, delete and view expenses from the SpendWise backend API.
                 </p>
 
                 <form onSubmit={handleExpenseSubmit}>
@@ -103,6 +138,7 @@ function App() {
                     </button>
                 </form>
 
+
                 <button type="button" className="button" onClick={loadExpenses}>
                     Load Expenses
                 </button>
@@ -113,6 +149,11 @@ function App() {
                     {expenses.map((expense) => (
                         <li key={expense.id}>
                             {expense.title} - ${expense.amount} ({expense.category})
+                            <form onSubmit={handleExpenseDelete}>
+                                <button type="submit" className="button">
+                                    Delete Expense
+                                </button>
+                            </form>
                         </li>
                     ))}
                 </ul>

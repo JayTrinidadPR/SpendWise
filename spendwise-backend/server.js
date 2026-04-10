@@ -60,7 +60,7 @@ app.delete("/api/expenses/:id", async (req, res) => {
       [id]
     );
 
-    if (result.rows.length) {
+    if (!result.rows.length) {
       return res.status(404).json({ error: "Expense not found" });
     }
 

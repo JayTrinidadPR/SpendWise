@@ -47,22 +47,26 @@ app.post("/api/expenses", async (req, res) => {
   }
 });
 
-app.delete("/api/expenses", async (req, res) => {
+app.delete("/api/expenses/:id", async (req, res) => {
   try {
-    const {title, amount, category} = req.body;
+    const { id } = req.params;
 
     const result = await client.query(
       `
-      DELETE FROM expenses (title, amount, category)
-      WHERE title = $1 AND amount = $2 AND category = $3
+      DELETE FROM expenses
+      WHERE id = $1
       RETURNING *;
       `,
-      [title, amount, category]
+      [id]
     );
 
-    res.status(201).json(result.rows[0]);
+    if (result.rows.length) {
+      return res.status(404).json({ error: "Expense not found" });
+    }
+
+    res.json(result.rows[0]);
   } catch (error) {
-    console.error("Error creating expense:", error);
+    console.error("Error deleting expense:", error);
     res.status(500).json({ error: "Server error" });
   }
 });

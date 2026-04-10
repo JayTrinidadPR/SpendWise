@@ -41,32 +41,20 @@ function App() {
         }
     }
 
-    async function handleExpenseDelete(event) {
-        event.preventDefault();
+    async function handleExpenseDelete(expenseId) {
+        setStatus("Deleting expense...");
 
-        const deleteExpense = {
-            title,
-            amount: parseFloat(amount),
-            category,
-        };
 
         try {
-            const response = await fetch(`${apiBaseUrl}/api/expenses`, {
+            const response = await fetch(`${apiBaseUrl}/api/expenses/${expenseId}`, {
                 method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(deleteExpense),
             });
 
             if (!response.ok) {
                 throw new Error(`Request failed with status ${response.status}`);
             }
-            setTitle("");
-            setAmount("");
-            setCategory("");
-            setStatus("Expense deleted successfully.");
 
+            setStatus("Expense deleted successfully.");
             await loadExpenses();
         } catch (error) {
             console.error("Error deleting expense:", error);
@@ -149,11 +137,13 @@ function App() {
                     {expenses.map((expense) => (
                         <li key={expense.id}>
                             {expense.title} - ${expense.amount} ({expense.category})
-                            <form onSubmit={handleExpenseDelete}>
-                                <button type="submit" className="button">
-                                    Delete Expense
-                                </button>
-                            </form>
+                            <button
+                                type="button"
+                                className="delete-button"
+                                onClick={() => handleExpenseDelete(expense.id)}
+                            >
+                                🗑️
+                            </button>
                         </li>
                     ))}
                 </ul>

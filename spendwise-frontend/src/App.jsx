@@ -44,7 +44,6 @@ function App() {
     async function handleExpenseDelete(expenseId) {
         setStatus("Deleting expense...");
 
-
         try {
             const response = await fetch(`${apiBaseUrl}/api/expenses/${expenseId}`, {
                 method: "DELETE",
@@ -61,7 +60,6 @@ function App() {
             setStatus("Failed to delete expense.");
         }
     }
-
 
     async function loadExpenses() {
         setStatus("Loading expenses...");
@@ -88,7 +86,7 @@ function App() {
                 <p className="eyebrow">SpendWise</p>
                 <h1>Expense Tracker</h1>
                 <p className="description">
-                    This page lets you create, delete and view expenses from the SpendWise backend API.
+                    This page lets you create, view, and delete expenses from the SpendWise backend API.
                 </p>
 
                 <form onSubmit={handleExpenseSubmit}>
@@ -125,7 +123,6 @@ function App() {
                         Add Expense
                     </button>
                 </form>
-
 
                 <button type="button" className="button" onClick={loadExpenses}>
                     Load Expenses

@@ -7,6 +7,12 @@ function App() {
     const [category, setCategory] = useState("");
     const [status, setStatus] = useState("Ready");
     const [expenses, setExpenses] = useState([]);
+    const [incomeSources, setIncomeSources] = useState([]);
+    const [sourceName, setSourceName] = useState("");
+    const [sourceAmount, setSourceAmount] = useState("");
+    const [sourceFrequency, setSourceFrequency] = useState("monthly");
+    const [payDate1, setPayDate1] = useState("");
+    const [payDate2, setPayDate2] = useState("");
 
     async function handleExpenseSubmit(event) {
         event.preventDefault();
@@ -80,6 +86,25 @@ function App() {
         }
     }
 
+     async function loadIncomeSources() {
+        setStatus("Loading income sources...");
+
+        try {
+            const response = await fetch(`${apiBaseUrl}/api/income-sources`);
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+
+            const data = await response.json();
+            setIncomeSources(data);
+            setStatus(`Loaded ${data.length} income source(s).`);
+        } catch (error) {
+            console.error("Error loading income sources:", error);
+            setStatus("Failed to load income sources.");
+        }
+    }
+
     return (
         <main className="page">
             <section className="card">
@@ -128,6 +153,10 @@ function App() {
                     Load Expenses
                 </button>
 
+                <button type="button" className="button" onClick={loadIncomeSources}>
+                    Load Income Sources
+                </button>
+
                 <p className="status">{status}</p>
 
                 <ul className="expenses-list">
@@ -144,6 +173,13 @@ function App() {
                         </li>
                     ))}
                 </ul>
+                <ul className="income-sources-list">
+                    {incomeSources.map((source) => (
+                        <li key={source.id}>
+                            {source.source_name} - ${source.amount} ({source.frequency})
+                        </li>
+                    ))}
+                </ul>   
             </section>
         </main>
     );

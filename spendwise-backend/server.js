@@ -17,6 +17,20 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
+function parsePayDate(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+
+  if (!Number.isInteger(parsedValue) || parsedValue < 1 || parsedValue > 31) {
+    return NaN;
+  }
+
+  return parsedValue;
+}
+
 app.get("/api/expenses", async (req, res) => {
   try {
     const result = await client.query("SELECT * FROM expenses;");
@@ -84,6 +98,20 @@ app.get("/api/income-sources", async (req, res) => {
 app.post("/api/income-sources", async (req, res) => {
   try {
     const { source_name, amount, frequency, pay_date_1, pay_date_2 } = req.body;
+    const parsedPayDate1 = parsePayDate(pay_date_1);
+    const parsedPayDate2 = parsePayDate(pay_date_2);
+
+    if (parsedPayDate1 === null || Number.isNaN(parsedPayDate1)) {
+      return res.status(400).json({
+        error: "pay_date_1 must be an integer between 1 and 31",
+      });
+    }
+
+    if (Number.isNaN(parsedPayDate2)) {
+      return res.status(400).json({
+        error: "pay_date_2 must be an integer between 1 and 31 or be empty",
+      });
+    }
     
     const result = await client.query(
       `
@@ -91,7 +119,7 @@ app.post("/api/income-sources", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *;
       `,
-      [source_name, amount, frequency, pay_date_1, pay_date_2]
+      [source_name, amount, frequency, parsedPayDate1, parsedPayDate2]
     );
 
     res.status(201).json(result.rows[0]);
@@ -113,5 +141,29 @@ async function startServer() {
     console.error("Error connecting to the database:", error);
   }
 }
+
+app.delete("/api/income-sources/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await client.query(
+      `
+      DELETE FROM income_sources
+      WHERE id = $1
+      RETURNING *;
+      `,
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: "Income source not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error deleting income source:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 startServer();

@@ -14,7 +14,6 @@ function App() {
     const [payDate1, setPayDate1] = useState("");
     const [payDate2, setPayDate2] = useState("");
 
-
     async function handleExpenseSubmit(event) {
         event.preventDefault();
 
@@ -65,6 +64,26 @@ function App() {
         } catch (error) {
             console.error("Error deleting expense:", error);
             setStatus("Failed to delete expense.");
+        }
+    }
+
+        async function handleIncomeSourceDelete(sourceId) {
+        setStatus("Deleting income source...");
+
+        try {
+            const response = await fetch(`${apiBaseUrl}/api/income-sources/${sourceId}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+
+            setStatus("Income source deleted successfully.");
+            await loadIncomeSources();
+        } catch (error) {
+            console.error("Error deleting income source:", error);
+            setStatus("Failed to delete income source.");
         }
     }
 
@@ -276,6 +295,13 @@ function App() {
                     {incomeSources.map((source) => (
                         <li key={source.id}>
                             {source.source_name} - ${source.amount} ({source.frequency})
+                             <button
+                                type="button"
+                                className="delete-button"
+                                onClick={() => handleIncomeSourceDelete(source.id)}
+                            >
+                                🗑️
+                            </button>
                         </li>
                     ))}
                 </ul>

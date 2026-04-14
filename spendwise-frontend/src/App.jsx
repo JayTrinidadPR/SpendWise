@@ -89,6 +89,7 @@ function App() {
         }
     }
 
+
     async function handleExpenseDelete(expenseId) {
         setStatus("Deleting expense...");
 
@@ -203,6 +204,7 @@ function App() {
             console.error("Error adding income source:", error);
             setStatus("Failed to add income source.");
         }
+
     }
 
     return (
@@ -260,20 +262,23 @@ function App() {
                     <section className="panel-section">
                         <h2>Dashboard</h2>
                         <p>Here is your current budget overview based on your income and expenses:</p>
-                        <article className="summary-card income-card">
-                            <p className="summary-label">Total Income</p>
-                            <h3>${totalIncome.toFixed(2)}</h3>
-                        </article>
 
-                        <article className="summary-card expense-card">
-                            <p className="summary-label">Total Expenses</p>
-                            <h3>${totalExpenses.toFixed(2)}</h3>
-                        </article>
+                        <div className="summary-grid">
+                            <article className="summary-card income-card">
+                                <p className="summary-label">Total Income</p>
+                                <h3>${totalIncome.toFixed(2)}</h3>
+                            </article>
 
-                        <article className="summary-card balance-card">
-                            <p className="summary-label">Remaining Balance</p>
-                            <h3>${remainingBalance.toFixed(2)}</h3>
-                        </article>
+                            <article className="summary-card expense-card">
+                                <p className="summary-label">Total Expenses</p>
+                                <h3>${totalExpenses.toFixed(2)}</h3>
+                            </article>
+
+                            <article className="summary-card balance-card">
+                                <p className="summary-label">Remaining Balance</p>
+                                <h3>${remainingBalance.toFixed(2)}</h3>
+                            </article>
+                        </div>
                     </section>
                 )}
 

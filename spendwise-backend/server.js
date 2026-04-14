@@ -31,6 +31,21 @@ function parsePayDate(value) {
   return parsedValue;
 }
 
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.trim() !== "";
+}
+
+function parseAmount(value) {
+  const parsedValue = Number(value);
+
+  if (!Number.isFinite(parsedValue) || parsedValue <= 0) {
+    return NaN;
+  }
+
+  return parsedValue;
+}
+
+
 app.get("/api/expenses", async (req, res) => {
   try {
     const result = await client.query("SELECT * FROM expenses;");
@@ -43,7 +58,20 @@ app.get("/api/expenses", async (req, res) => {
 
 app.post("/api/expenses", async (req, res) => {
   try {
-    const { title, amount, category} = req.body;
+    const { title, amount, category } = req.body;
+    const parsedAmount = parseAmount(amount);
+
+    if (!isNonEmptyString(title)) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+
+    if (!isNonEmptyString(category)) {
+      return res.status(400).json({ error: "Category is required" });
+    }
+
+    if (Number.isNaN(parsedAmount)) {
+      return res.status(400).json({ error: "Amount must be a positive number" });
+    }
 
     const result = await client.query(
       `
@@ -51,7 +79,7 @@ app.post("/api/expenses", async (req, res) => {
       VALUES ($1, $2, $3)
       RETURNING *;
       `,
-      [title, amount, category]
+      [title.trim(), parsedAmount, category.trim()]
     );
 
     res.status(201).json(result.rows[0]);
@@ -112,7 +140,7 @@ app.post("/api/income-sources", async (req, res) => {
         error: "pay_date_2 must be an integer between 1 and 31 or be empty",
       });
     }
-    
+
     const result = await client.query(
       `
       INSERT INTO income_sources (source_name, amount, frequency, pay_date_1, pay_date_2)

@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
-  })
+  }),
 );
 app.use(express.json());
 
@@ -31,9 +31,34 @@ function parsePayDate(value) {
   return parsedValue;
 }
 
+function validateExpenseInput(payload) {
+  // WHY (Functionality + Code Style): Normalizing and validating form input here keeps the create-expense route predictable and avoids repeated validation logic in multiple places.
+  const title = typeof payload.title === "string" ? payload.title.trim() : "";
+  const category =
+    typeof payload.category === "string" ? payload.category.trim() : "";
+  const amount = Number(payload.amount);
+
+  if (!title) {
+    return { error: "title is required" };
+  }
+
+  if (!category) {
+    return { error: "category is required" };
+  }
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { error: "amount must be a positive number" };
+  }
+
+  return { value: { title, amount, category } };
+}
+
 app.get("/api/expenses", async (req, res) => {
   try {
-    const result = await client.query("SELECT * FROM expenses;");
+    // WHY (Functionality): Returning newest expenses first helps the UI show the just-added expense at the top of the refreshed list.
+    const result = await client.query(
+      "SELECT * FROM expenses ORDER BY created_at DESC, id DESC;",
+    );
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching expenses:", error);
@@ -43,7 +68,13 @@ app.get("/api/expenses", async (req, res) => {
 
 app.post("/api/expenses", async (req, res) => {
   try {
-    const { title, amount, category} = req.body;
+    // WHY (Functionality + Documentation): This explicit 400 response teaches API consumers what to fix in their form input, instead of failing later with a generic server error.
+    const validationResult = validateExpenseInput(req.body);
+    if (validationResult.error) {
+      return res.status(400).json({ error: validationResult.error });
+    }
+
+    const { title, amount, category } = validationResult.value;
 
     const result = await client.query(
       `
@@ -51,7 +82,7 @@ app.post("/api/expenses", async (req, res) => {
       VALUES ($1, $2, $3)
       RETURNING *;
       `,
-      [title, amount, category]
+      [title, amount, category],
     );
 
     res.status(201).json(result.rows[0]);
@@ -63,7 +94,14 @@ app.post("/api/expenses", async (req, res) => {
 
 app.delete("/api/expenses/:id", async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = Number(req.params.id);
+
+    // WHY (Functionality): Validating route params prevents invalid ids from crashing into a DB error and gives a clear message the frontend can handle.
+    if (!Number.isInteger(id) || id <= 0) {
+      return res
+        .status(400)
+        .json({ error: "Expense id must be a positive integer" });
+    }
 
     const result = await client.query(
       `
@@ -71,7 +109,7 @@ app.delete("/api/expenses/:id", async (req, res) => {
       WHERE id = $1
       RETURNING *;
       `,
-      [id]
+      [id],
     );
 
     if (!result.rows.length) {
@@ -112,14 +150,14 @@ app.post("/api/income-sources", async (req, res) => {
         error: "pay_date_2 must be an integer between 1 and 31 or be empty",
       });
     }
-    
+
     const result = await client.query(
       `
       INSERT INTO income_sources (source_name, amount, frequency, pay_date_1, pay_date_2)
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *;
       `,
-      [source_name, amount, frequency, parsedPayDate1, parsedPayDate2]
+      [source_name, amount, frequency, parsedPayDate1, parsedPayDate2],
     );
 
     res.status(201).json(result.rows[0]);
@@ -152,7 +190,7 @@ app.delete("/api/income-sources/:id", async (req, res) => {
       WHERE id = $1
       RETURNING *;
       `,
-      [id]
+      [id],
     );
 
     if (!result.rows.length) {

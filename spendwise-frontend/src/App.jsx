@@ -33,7 +33,7 @@ function App() {
                     fetch(`${apiBaseUrl}/api/expenses`),
                     fetch(`${apiBaseUrl}/api/income-sources`),
                 ]);
-                
+
                 if (!expensesResponse.ok) {
                     throw new Error(`Failed to load expenses: ${expensesResponse.status}`);
                 }
@@ -261,7 +261,6 @@ function App() {
                         <h2>Dashboard</h2>
                         <p>Here is your current budget overview based on your income and expenses:</p>
                         <article className="summary-card income-card">
-                            <p className="summary-grid"></p>
                             <p className="summary-label">Total Income</p>
                             <h3>${totalIncome.toFixed(2)}</h3>
                         </article>
@@ -270,6 +269,7 @@ function App() {
                             <p className="summary-label">Total Expenses</p>
                             <h3>${totalExpenses.toFixed(2)}</h3>
                         </article>
+
                         <article className="summary-card balance-card">
                             <p className="summary-label">Remaining Balance</p>
                             <h3>${remainingBalance.toFixed(2)}</h3>
@@ -421,6 +421,22 @@ function App() {
                         </ul>
                     </section>
                 )}
+
+                {activePage === "insights" && (
+                    <section className="panel-section">
+                        <h2>Insights</h2>
+                        <p>This page is coming soon. It will show trends, category patterns, and budgeting insights.</p>
+                    </section>
+                )}
+
+                {activePage === "settings" && (
+                    <section className="panel-section">
+                        <h2>Settings</h2>
+                        <p>This page is coming soon. It will hold user preferences and account options.</p>
+                    </section>
+                )}
+
+
             </section>
         </main >
     );

@@ -205,6 +205,10 @@ select {
         padding: 24px;
     }
 
+    .summary-grid {
+    grid-template-columns: 1fr;
+}
+
     .expenses-list li,
     .income-sources-list li {
         flex-direction: column;
@@ -212,3 +216,47 @@ select {
     }
 }
 
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top:24px;
+}
+
+.summary-card {
+    padding: 22px 24px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.summary-label {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+}
+
+.summary-card h3 {
+    margin: 10px 0 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    color: var(--text);
+}
+
+.income-card {
+    background: linear-gradient(135deg, rgba(198, 235, 214, 0.95), rgba(232, 247, 238, 0.92));
+}
+
+.expense-card {
+    background: linear-gradient(135deg, rgba(248, 210, 205, 0.95), rgba(252, 238, 236, 0.92));
+}
+
+.balance-card {
+    background: linear-gradient(135deg, rgba(209, 228, 244, 0.95), rgba(237, 245, 251, 0.92));
+}

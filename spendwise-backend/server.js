@@ -126,9 +126,18 @@ app.get("/api/income-sources", async (req, res) => {
 app.post("/api/income-sources", async (req, res) => {
   try {
     const { source_name, amount, frequency, pay_date_1, pay_date_2 } = req.body;
+    const parsedAmount = parseAmount(amount);
     const parsedPayDate1 = parsePayDate(pay_date_1);
     const parsedPayDate2 = parsePayDate(pay_date_2);
 
+    if (!isNonEmptyString(source_name)) {
+      return res.status(400).json({ error: "Source name is required" });
+    }
+
+    if (Number.isNaN(parsedAmount)) {
+      return res.status(400).json({ error: "Amount must be a positive number" });
+    }
+    
     if (parsedPayDate1 === null || Number.isNaN(parsedPayDate1)) {
       return res.status(400).json({
         error: "pay_date_1 must be an integer between 1 and 31",
@@ -147,7 +156,7 @@ app.post("/api/income-sources", async (req, res) => {
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *;
       `,
-      [source_name, amount, frequency, parsedPayDate1, parsedPayDate2]
+      [source_name.trim(), parsedAmount, frequency.trim(), parsedPayDate1, parsedPayDate2]
     );
 
     res.status(201).json(result.rows[0]);

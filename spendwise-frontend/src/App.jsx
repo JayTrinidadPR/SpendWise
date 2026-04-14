@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 
 const apiBaseUrl = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 
@@ -24,6 +25,36 @@ function App() {
     }, 0);
 
     const remainingBalance = totalIncome - totalExpenses;
+
+    useEffect(() => {
+        async function loadDashboardData() {
+            try {
+                const [expensesResponse, incomeSourcesResponse] = await Promise.all([
+                    fetch(`${apiBaseUrl}/api/expenses`),
+                    fetch(`${apiBaseUrl}/api/income-sources`),
+                ]);
+                
+                if (!expensesResponse.ok) {
+                    throw new Error(`Failed to load expenses: ${expensesResponse.status}`);
+                }
+                if (!incomeSourcesResponse.ok) {
+                    throw new Error(`Failed to load income sources: ${incomeSourcesResponse.status}`);
+                }
+
+                const expensesData = await expensesResponse.json();
+                const incomeSourcesData = await incomeSourcesResponse.json();
+
+                setExpenses(expensesData);
+                setIncomeSources(incomeSourcesData);
+                setStatus("Dashboard data loaded successfully.");
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+                setStatus("Failed to load dashboard data.");
+            }
+        }
+
+        loadDashboardData();
+    }, []);
 
     async function handleExpenseSubmit(event) {
         event.preventDefault();

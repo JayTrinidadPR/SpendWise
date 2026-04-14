@@ -15,6 +15,15 @@ function App() {
     const [frequency, setFrequency] = useState("weekly");
     const [payDate1, setPayDate1] = useState("");
     const [payDate2, setPayDate2] = useState("");
+    const totalIncome = incomeSources.reduce((sum, source) => {
+        return sum + Number(source.amount);
+    }, 0);
+
+    const totalExpenses = expenses.reduce((sum, expense) => {
+        return sum + Number(expense.amount);
+    }, 0);
+
+    const remainingBalance = totalIncome - totalExpenses;
 
     async function handleExpenseSubmit(event) {
         event.preventDefault();
@@ -219,7 +228,21 @@ function App() {
                 {activePage === "dashboard" && (
                     <section className="panel-section">
                         <h2>Dashboard</h2>
-                        <p>This will become the main budget overview page with totals, insights, and category breakdowns.</p>
+                        <p>Here is your current budget overview based on your income and expenses:</p>
+                        <article className="summary-card income-card">
+                            <p className="summary-grid"></p>
+                            <p className="summary-label">Total Income</p>
+                            <h3>${totalIncome.toFixed(2)}</h3>
+                        </article>
+
+                        <article className="summary-card expense-card">
+                            <p className="summary-label">Total Expenses</p>
+                            <h3>${totalExpenses.toFixed(2)}</h3>
+                        </article>
+                        <article className="summary-card balance-card">
+                            <p className="summary-label">Remaining Balance</p>
+                            <h3>${remainingBalance.toFixed(2)}</h3>
+                        </article>
                     </section>
                 )}
 

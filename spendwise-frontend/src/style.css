@@ -24,6 +24,7 @@ body,
     margin: 0;
     min-height: 100%;
 }
+
 body {
     font-family: "Avenir Next", "Segoe UI", sans-serif;
     color: var(--text);
@@ -127,6 +128,87 @@ select {
     line-height: 1.6;
 }
 
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.summary-card {
+    padding: 22px 24px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.summary-label {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+}
+
+.summary-card h3 {
+    margin: 10px 0 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    color: var(--text);
+}
+
+.income-card {
+    background: linear-gradient(135deg, rgba(198, 235, 214, 0.95), rgba(232, 247, 238, 0.92));
+}
+
+.expense-card {
+    background: linear-gradient(135deg, rgba(248, 210, 205, 0.95), rgba(252, 238, 236, 0.92));
+}
+
+.balance-card {
+    background: linear-gradient(135deg, rgba(209, 228, 244, 0.95), rgba(237, 245, 251, 0.92));
+}
+
+.dashboard-subsection {
+    margin-top: 32px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.dashboard-subsection h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1.4rem;
+    font-family: "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+}
+
+.dashboard-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+}
+
+.dashboard-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.dashboard-list li:last-child {
+    border-bottom: none;
+}
+
 form {
     display: grid;
     gap: 12px;
@@ -192,9 +274,21 @@ select {
     font-size: 0.95rem;
 }
 
+.loading-message {
+    display: inline-flex;
+    align-items: center;
+    margin: 12px 0 0;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(127, 179, 213, 0.16);
+    color: #214867;
+    font-weight: 600;
+}
+
 @media (max-width: 900px) {
     .page-shell {
         grid-template-columns: 1fr;
+        padding: 20px;
     }
 
     .sidebar {
@@ -206,68 +300,17 @@ select {
     }
 
     .summary-grid {
-    grid-template-columns: 1fr;
-}
+        grid-template-columns: 1fr;
+    }
 
+    .summary-card h3 {
+        font-size: 1.6rem;
+    }
+
+    .dashboard-list li,
     .expenses-list li,
     .income-sources-list li {
         flex-direction: column;
         align-items: flex-start;
     }
-}
-
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-    margin-top:24px;
-}
-
-.summary-card {
-    padding: 22px 24px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    min-height: 140px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.summary-label {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.02em;
-}
-
-.summary-card h3 {
-    margin: 10px 0 0;
-    font-size: 2rem;
-    line-height: 1.1;
-    color: var(--text);
-}
-
-.income-card {
-    background: linear-gradient(135deg, rgba(198, 235, 214, 0.95), rgba(232, 247, 238, 0.92));
-}
-
-.expense-card {
-    background: linear-gradient(135deg, rgba(248, 210, 205, 0.95), rgba(252, 238, 236, 0.92));
-}
-
-.balance-card {
-    background: linear-gradient(135deg, rgba(209, 228, 244, 0.95), rgba(237, 245, 251, 0.92));
-}
-
-.loading-message {
-    display: inline-flex;
-    align-items: center;
-    margin: 12px 0 0;
-    padding: 10px 14px;
-    border-radius: 999px;
-    background: rgba(127, 179, 213, 0.16);
-    color: #214867;
-    font-weight: 600;
 }

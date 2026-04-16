@@ -304,7 +304,7 @@ select {
     .sidebar {
         gap: 20px;
         position: static;
-        top: auto
+        top: auto;
     }
 
     .main-panel {
@@ -318,9 +318,11 @@ select {
     .summary-card h3 {
         font-size: 1.6rem;
     }
+
     .dashboard-secondary-grid {
-    grid-template-columns: 1fr;
-}
+        grid-template-columns: 1fr;
+    }
+
     .dashboard-list li,
     .expenses-list li,
     .income-sources-list li {

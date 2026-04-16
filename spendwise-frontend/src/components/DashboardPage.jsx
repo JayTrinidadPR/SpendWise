@@ -1,4 +1,6 @@
-function DashboardPage({ totalIncome, totalExpenses, remainingBalance, recentExpenses, isLoadingDashboard, recentIncomeSources }) {
+function DashboardPage(
+    { totalIncome, totalExpenses, remainingBalance, recentExpenses,
+        isLoadingDashboard, recentIncomeSources, expenseCategoryBreakdown, topExpenseCategory }) {
     return (
         <section className="panel-section">
             <h2>Dashboard</h2>
@@ -64,6 +66,37 @@ function DashboardPage({ totalIncome, totalExpenses, remainingBalance, recentExp
                         </ul>
                     )}
                 </section>
+                <section className="dashboard-subsection">
+                    <h3>Expense Categories</h3>
+
+                    {expenseCategoryBreakdown.length === 0 ? (
+                        <p>No categorized expenses yet.</p>
+                    ) : (
+                        <ul className="dashboard-list">
+                            {expenseCategoryBreakdown.map(([categoryName, totalAmount]) => (
+                                <li key={categoryName}>
+                                    <span>{categoryName}</span>
+                                    <span>${totalAmount.toFixed(2)}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
+                <section className="dashboard-subsection insight-card">
+                    <h3>Top Spending Category</h3>
+
+                    {!topExpenseCategory ? (
+                        <p>No spending insight yet.</p>
+                    ) : (
+                        <>
+                            <p className="insight-title">{topExpenseCategory[0]}</p>
+                            <p className="insight-value">${topExpenseCategory[1].toFixed(2)} total</p>
+                        </>
+                    )}
+                </section>
+
+
             </div>
         </section>
     );

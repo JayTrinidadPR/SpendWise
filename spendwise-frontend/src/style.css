@@ -342,3 +342,21 @@ select {
         align-items: flex-start;
     }
 }
+
+.insight-card {
+    background: linear-gradient(135deg, rgba(255, 248, 239, 0.95), rgba(255, 255, 255, 0.9));
+}
+
+.insight-title {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.insight-value {
+    margin: 8px 0 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--muted);
+}

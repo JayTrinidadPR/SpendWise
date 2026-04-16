@@ -39,6 +39,19 @@ function App() {
         .sort((a, b) => b.id - a.id)
         .slice(0, 5);
 
+    const expenseCategoryBreakdown = Object.entries(
+        expenses.reduce((totals, expense) => {
+            const categoryName = expense.category?.trim() || "Uncategorized";
+            const amountValue = Number(expense.amount);
+
+            totals[categoryName] = (totals[categoryName] || 0) + amountValue;
+            return totals;
+        }, {})
+    )
+        .sort((a, b) => b[1] - a[1]);
+
+    const topExpenseCategory = expenseCategoryBreakdown[0] || null;``
+
     useEffect(() => {
 
         async function loadDashboardData() {
@@ -69,8 +82,8 @@ function App() {
             finally {
                 setIsLoadingDashboard(false);
             }
-        } 
-        
+        }
+
 
         loadDashboardData();
     }, []);
@@ -238,6 +251,8 @@ function App() {
                         remainingBalance={remainingBalance}
                         recentExpenses={recentExpenses}
                         recentIncomeSources={recentIncomeSources}
+                        expenseCategoryBreakdown={expenseCategoryBreakdown}
+                        topExpenseCategory={topExpenseCategory}
                         isLoadingDashboard={isLoadingDashboard}
                     />
                 )}

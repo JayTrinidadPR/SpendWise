@@ -1,4 +1,4 @@
-function DashboardPage({ totalIncome, totalExpenses, remainingBalance, recentExpenses, isLoadingDashboard }) {
+function DashboardPage({ totalIncome, totalExpenses, remainingBalance, recentExpenses, isLoadingDashboard, recentIncomeSources }) {
     return (
         <section className="panel-section">
             <h2>Dashboard</h2>
@@ -26,25 +26,45 @@ function DashboardPage({ totalIncome, totalExpenses, remainingBalance, recentExp
                     <h3>${remainingBalance.toFixed(2)}</h3>
                 </article>
             </div>
+            <div className="dashboard-secondary-grid">
+                <section className="dashboard-subsection">
+                    <h3>Recent Expenses</h3>
 
-            <section className="dashboard-subsection">
-                <h3>Recent Expenses</h3>
+                    {recentExpenses.length === 0 ? (
+                        <p>No expenses yet.</p>
+                    ) : (
+                        <ul className="dashboard-list">
+                            {recentExpenses.map((expense) => (
+                                <li key={expense.id}>
+                                    <span>{expense.title}</span>
+                                    <span>
+                                        ${Number(expense.amount).toFixed(2)} - {expense.category}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
 
-                {recentExpenses.length === 0 ? (
-                    <p>No expenses yet.</p>
-                ) : (
-                    <ul className="dashboard-list">
-                        {recentExpenses.map((expense) => (
-                            <li key={expense.id}>
-                                <span>{expense.title}</span>
-                                <span>
-                                    ${Number(expense.amount).toFixed(2)} - {expense.category}
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </section>
+                <section className="dashboard-subsection">
+                    <h3>Recent Income Sources</h3>
+
+                    {recentIncomeSources.length === 0 ? (
+                        <p>No income sources yet.</p>
+                    ) : (
+                        <ul className="dashboard-list">
+                            {recentIncomeSources.map((source) => (
+                                <li key={source.id}>
+                                    <span>{source.source_name}</span>
+                                    <span>
+                                        ${Number(source.amount).toFixed(2)} - {source.frequency}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+            </div>
         </section>
     );
 }

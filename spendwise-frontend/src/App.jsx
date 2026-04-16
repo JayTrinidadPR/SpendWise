@@ -35,6 +35,9 @@ function App() {
     const recentExpenses = [...expenses]
         .sort((a, b) => b.id - a.id)
         .slice(0, 5);
+    const recentIncomeSources = [...incomeSources]
+        .sort((a, b) => b.id - a.id)
+        .slice(0, 5);
 
     useEffect(() => {
 
@@ -234,6 +237,7 @@ function App() {
                         totalExpenses={totalExpenses}
                         remainingBalance={remainingBalance}
                         recentExpenses={recentExpenses}
+                        recentIncomeSources={recentIncomeSources}
                         isLoadingDashboard={isLoadingDashboard}
                     />
                 )}

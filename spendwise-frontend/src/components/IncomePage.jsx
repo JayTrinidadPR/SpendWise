@@ -90,7 +90,7 @@ function IncomePage({
                             className="delete-button"
                             onClick={() => handleIncomeSourceDelete(source.id)}
                         >
-                            🗑️
+                            Remove
                         </button>
                     </li>
                 ))}

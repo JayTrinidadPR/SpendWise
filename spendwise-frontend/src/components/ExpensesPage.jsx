@@ -63,7 +63,7 @@ function ExpensesPage({
                             className="delete-button"
                             onClick={() => handleExpenseDelete(expense.id)}
                         >
-                            🗑️
+                            Remove
                         </button>
                     </li>
                 ))}

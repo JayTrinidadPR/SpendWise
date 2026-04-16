@@ -251,10 +251,22 @@ select {
     transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
+.delete-button {
+    border: 1px solid rgba(117, 92, 72, 0.18);
+    background: rgba(255, 255, 255, 0.76);
+    color: var(--text);
+    font-weight: 600;
+}
+
 .button:hover,
 .delete-button:hover {
     background: var(--accent-strong);
     transform: translateY(-1px);
+}
+
+.delete-button:hover {
+    background: rgba(248, 210, 205, 0.55);
+    color: #7b4a47;
 }
 
 .expenses-list,

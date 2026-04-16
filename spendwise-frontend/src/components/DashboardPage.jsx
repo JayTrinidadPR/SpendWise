@@ -1,8 +1,14 @@
-function DashboardPage({ totalIncome, totalExpenses, remainingBalance, recentExpenses }) {
+function DashboardPage({ totalIncome, totalExpenses, remainingBalance, recentExpenses, isLoadingDashboard }) {
     return (
         <section className="panel-section">
             <h2>Dashboard</h2>
             <p>Here is your current budget overview based on your income and expenses:</p>
+
+            {isLoadingDashboard && (
+                <p className="loading-message">
+                    Loading your budget data. Render may take a few seconds to wake up.
+                </p>
+            )}
 
             <div className="summary-grid">
                 <article className="summary-card income-card">

@@ -260,3 +260,14 @@ select {
 .balance-card {
     background: linear-gradient(135deg, rgba(209, 228, 244, 0.95), rgba(237, 245, 251, 0.92));
 }
+
+.loading-message {
+    display: inline-flex;
+    align-items: center;
+    margin: 12px 0 0;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(127, 179, 213, 0.16);
+    color: #214867;
+    font-weight: 600;
+}

@@ -21,6 +21,7 @@ function App() {
     const [frequency, setFrequency] = useState("weekly");
     const [payDate1, setPayDate1] = useState("");
     const [payDate2, setPayDate2] = useState("");
+    const [isLoadingDashboard, setIsLoadingDashboard] = useState(true);
     const totalIncome = incomeSources.reduce((sum, source) => {
         return sum + Number(source.amount);
     }, 0);
@@ -39,6 +40,7 @@ function App() {
 
         async function loadDashboardData() {
             try {
+                setIsLoadingDashboard(true);
                 const [expensesResponse, incomeSourcesResponse] = await Promise.all([
                     fetch(`${apiBaseUrl}/api/expenses`),
                     fetch(`${apiBaseUrl}/api/income-sources`),
@@ -61,7 +63,11 @@ function App() {
                 console.error("Error loading dashboard data:", error);
                 setStatus("Failed to load dashboard data.");
             }
-        }
+            finally {
+                setIsLoadingDashboard(false);
+            }
+        } 
+        
 
         loadDashboardData();
     }, []);
@@ -228,6 +234,7 @@ function App() {
                         totalExpenses={totalExpenses}
                         remainingBalance={remainingBalance}
                         recentExpenses={recentExpenses}
+                        isLoadingDashboard={isLoadingDashboard}
                     />
                 )}
 

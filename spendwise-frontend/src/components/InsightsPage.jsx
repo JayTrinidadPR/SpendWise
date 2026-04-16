@@ -9,7 +9,7 @@ function InsightsPage({
             <h2>Insights</h2>
             <p>Here is a quick look at your current spending patterns.</p>
 
-            <div className="summary-grid">
+            <div className="insights-grid">
                 <article className="summary-card insight-card">
                     <p className="summary-label">Top Spending Category</p>
                     {!topExpenseCategory ? (

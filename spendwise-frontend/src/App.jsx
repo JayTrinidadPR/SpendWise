@@ -4,6 +4,8 @@ import DashboardPage from "./components/DashboardPage.jsx";
 import ExpensesPage from "./components/ExpensesPage.jsx";
 import IncomePage from "./components/IncomePage.jsx";
 import PlaceholderPage from "./components/PlaceholderPage.jsx";
+import InsightsPage from "./components/InsightsPage.jsx";
+
 
 
 const apiBaseUrl = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -50,10 +52,18 @@ function App() {
     )
         .sort((a, b) => b[1] - a[1]);
 
-    const topExpenseCategory = expenseCategoryBreakdown[0] || null;``
+    const topExpenseCategory = expenseCategoryBreakdown[0] || null;
+
+    const totalExpenseCount = expenses.length;
+
+    const averageExpenseAmount =
+        expenses.length === 0 ? 0 : totalExpenses / expenses.length;
+
+    const savingsRate =
+        totalIncome === 0 ? 0 : ((totalIncome - totalExpenses) / totalIncome) * 100;
+
 
     useEffect(() => {
-
         async function loadDashboardData() {
             try {
                 setIsLoadingDashboard(true);
@@ -83,7 +93,6 @@ function App() {
                 setIsLoadingDashboard(false);
             }
         }
-
 
         loadDashboardData();
     }, []);
@@ -292,9 +301,11 @@ function App() {
                 )}
 
                 {activePage === "insights" && (
-                    <PlaceholderPage
-                        title="Insights"
-                        description="This page is coming soon. It will show trends, category patterns, and budgeting insights."
+                    <InsightsPage
+                        topExpenseCategory={topExpenseCategory}
+                        totalExpenseCount={totalExpenseCount}
+                        averageExpenseAmount={averageExpenseAmount}
+                        savingsRate={savingsRate}
                     />
                 )}
 

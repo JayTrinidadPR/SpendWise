@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import Sidebar from "./components/Sidebar.jsx";
+import DashboardPage from "./components/DashboardPage.jsx";
+import ExpensesPage from "./components/ExpensesPage.jsx";
+import IncomePage from "./components/IncomePage.jsx";
+import PlaceholderPage from "./components/PlaceholderPage.jsx";
 
 
 const apiBaseUrl = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -26,7 +31,12 @@ function App() {
 
     const remainingBalance = totalIncome - totalExpenses;
 
+    const recentExpenses = [...expenses]
+        .sort((a, b) => b.id - a.id)
+        .slice(0, 5);
+
     useEffect(() => {
+
         async function loadDashboardData() {
             try {
                 const [expensesResponse, incomeSourcesResponse] = await Promise.all([
@@ -209,243 +219,69 @@ function App() {
 
     return (
         <main className="page-shell">
-            <aside className="sidebar">
-                <div className="brand">
-                    <p className="eyebrow">SpendWise</p>
-                    <h1>Plan with clarity</h1>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <button
-                        type="button"
-                        className={activePage === "dashboard" ? "nav-button active" : "nav-button"}
-                        onClick={() => setActivePage("dashboard")}
-                    >
-                        Dashboard
-                    </button>
-
-                    <button
-                        type="button"
-                        className={activePage === "income" ? "nav-button active" : "nav-button"}
-                        onClick={() => setActivePage("income")}
-                    >
-                        Income
-                    </button>
-
-                    <button
-                        type="button"
-                        className={activePage === "expenses" ? "nav-button active" : "nav-button"}
-                        onClick={() => setActivePage("expenses")}
-                    >
-                        Expenses
-                    </button>
-                    <button
-                        type="button"
-                        className={activePage === "insights" ? "nav-button active" : "nav-button"}
-                        onClick={() => setActivePage("insights")}
-                    >
-                        Insights
-                    </button>
-
-                    <button
-                        type="button"
-                        className={activePage === "settings" ? "nav-button active" : "nav-button"}
-                        onClick={() => setActivePage("settings")}
-                    >
-                        Settings
-                    </button>
-                </nav>
-            </aside>
+            <Sidebar activePage={activePage} setActivePage={setActivePage} />
 
             <section className="main-panel">
                 {activePage === "dashboard" && (
-                    <section className="panel-section">
-                        <h2>Dashboard</h2>
-                        <p>Here is your current budget overview based on your income and expenses:</p>
-
-                        <div className="summary-grid">
-                            <article className="summary-card income-card">
-                                <p className="summary-label">Total Income</p>
-                                <h3>${totalIncome.toFixed(2)}</h3>
-                            </article>
-
-                            <article className="summary-card expense-card">
-                                <p className="summary-label">Total Expenses</p>
-                                <h3>${totalExpenses.toFixed(2)}</h3>
-                            </article>
-
-                            <article className="summary-card balance-card">
-                                <p className="summary-label">Remaining Balance</p>
-                                <h3>${remainingBalance.toFixed(2)}</h3>
-                            </article>
-                        </div>
-                    </section>
+                    <DashboardPage
+                        totalIncome={totalIncome}
+                        totalExpenses={totalExpenses}
+                        remainingBalance={remainingBalance}
+                        recentExpenses={recentExpenses}
+                    />
                 )}
 
                 {activePage === "income" && (
-                    <section className="panel-section">
-                        <h2>Income</h2>
-
-                        <form onSubmit={handleIncomeSourceSubmit}>
-                            <label htmlFor="sourceNameInput">Source Name</label>
-                            <input
-                                id="sourceNameInput"
-                                name="source_name"
-                                type="text"
-                                value={sourceName}
-                                onChange={(event) => setSourceName(event.target.value)}
-                                required
-                            />
-
-                            <label htmlFor="incomeAmountInput">Amount</label>
-                            <input
-                                id="incomeAmountInput"
-                                name="amount"
-                                type="number"
-                                step="0.01"
-                                value={incomeAmount}
-                                onChange={(event) => setIncomeAmount(event.target.value)}
-                                required
-                            />
-
-                            <label htmlFor="frequencyInput">Frequency</label>
-                            <select
-                                id="frequencyInput"
-                                name="frequency"
-                                value={frequency}
-                                onChange={(event) => setFrequency(event.target.value)}
-                                required
-                            >
-                                <option value="weekly">Weekly</option>
-                                <option value="biweekly">Biweekly</option>
-                                <option value="monthly">Monthly</option>
-                            </select>
-
-                            <label htmlFor="payDate1Input">Pay Date 1</label>
-                            <input
-                                id="payDate1Input"
-                                name="pay_date_1"
-                                type="number"
-                                value={payDate1}
-                                onChange={(event) => setPayDate1(event.target.value)}
-                                required
-                            />
-
-                            <label htmlFor="payDate2Input">Pay Date 2</label>
-                            <input
-                                id="payDate2Input"
-                                name="pay_date_2"
-                                type="number"
-                                value={payDate2}
-                                onChange={(event) => setPayDate2(event.target.value)}
-                            />
-
-
-
-                            <button type="submit" className="button">
-                                Add Income Source
-                            </button>
-                        </form>
-                        <button type="button" className="button" onClick={loadIncomeSources}>
-                            Load Income Sources
-                        </button>
-                        <ul className="income-sources-list">
-                            {incomeSources.map((source) => (
-                                <li key={source.id}>
-                                    {source.source_name} - ${source.amount} ({source.frequency})
-                                    <button
-                                        type="button"
-                                        className="delete-button"
-                                        onClick={() => handleIncomeSourceDelete(source.id)}
-                                    >
-                                        🗑️
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
+                    <IncomePage
+                        sourceName={sourceName}
+                        setSourceName={setSourceName}
+                        incomeAmount={incomeAmount}
+                        setIncomeAmount={setIncomeAmount}
+                        frequency={frequency}
+                        setFrequency={setFrequency}
+                        payDate1={payDate1}
+                        setPayDate1={setPayDate1}
+                        payDate2={payDate2}
+                        setPayDate2={setPayDate2}
+                        incomeSources={incomeSources}
+                        loadIncomeSources={loadIncomeSources}
+                        handleIncomeSourceSubmit={handleIncomeSourceSubmit}
+                        handleIncomeSourceDelete={handleIncomeSourceDelete}
+                    />
                 )}
 
                 {activePage === "expenses" && (
-                    <section className="panel-section">
-                        <h2>Expenses</h2>
-
-                        <form onSubmit={handleExpenseSubmit}>
-                            <label htmlFor="titleInput">Title</label>
-                            <input
-                                id="titleInput"
-                                name="title"
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                required
-                            />
-
-                            <label htmlFor="amountInput">Amount</label>
-                            <input
-                                id="amountInput"
-                                name="amount"
-                                type="number"
-                                step="0.01"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                required />
-
-                            <label htmlFor="categoryInput">Category</label>
-                            <input
-                                id="categoryInput"
-                                name="category"
-                                type="text"
-                                value={category}
-                                onChange={(event) => setCategory(event.target.value)}
-                                required
-                            />
-
-                            <button type="submit" className="button">
-                                Add Expense
-                            </button>
-                        </form>
-
-                        <button type="button" className="button" onClick={loadExpenses}>
-                            Load Expenses
-                        </button>
-
-                        <ul className="expenses-list">
-                            {expenses.map((expense) => (
-                                <li key={expense.id}>
-                                    {expense.title} - ${expense.amount} ({expense.category})
-                                    <button
-                                        type="button"
-                                        className="delete-button"
-                                        onClick={() => handleExpenseDelete(expense.id)}
-                                    >
-                                        🗑️
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
+                    <ExpensesPage
+                        title={title}
+                        setTitle={setTitle}
+                        amount={amount}
+                        setAmount={setAmount}
+                        category={category}
+                        setCategory={setCategory}
+                        expenses={expenses}
+                        handleExpenseSubmit={handleExpenseSubmit}
+                        loadExpenses={loadExpenses}
+                        handleExpenseDelete={handleExpenseDelete}
+                    />
                 )}
 
                 {activePage === "insights" && (
-                    <section className="panel-section">
-                        <h2>Insights</h2>
-                        <p>This page is coming soon. It will show trends, category patterns, and budgeting insights.</p>
-                    </section>
+                    <PlaceholderPage
+                        title="Insights"
+                        description="This page is coming soon. It will show trends, category patterns, and budgeting insights."
+                    />
                 )}
 
                 {activePage === "settings" && (
-                    <section className="panel-section">
-                        <h2>Settings</h2>
-                        <p>This page is coming soon. It will hold user preferences and account options.</p>
-                    </section>
+                    <PlaceholderPage
+                        title="Settings"
+                        description="This page is coming soon. It will hold user preferences and account options."
+                    />
                 )}
-
 
             </section>
         </main >
     );
-
 
 }
 

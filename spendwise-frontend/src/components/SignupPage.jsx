@@ -1,11 +1,13 @@
 import { useState } from "react";
 
-function SignupPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToLogin }) {
+function SignupPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToLogin, loadAuthenticatedAppData }) {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     async function handleSignupSubmit(event) {
+        setErrorMessage("");
         event.preventDefault();
 
         try {
@@ -47,10 +49,12 @@ function SignupPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToLogin }) 
             }
 
             setCurrentUser(loginData);
+            await loadAuthenticatedAppData();
             setStatus("Account created successfully.");
         } catch (error) {
             console.error("Error signing up:", error);
             setStatus(error.message || "Failed to create account.");
+            setErrorMessage(error.message || "Failed to create account.");
         }
     }
 
@@ -58,6 +62,8 @@ function SignupPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToLogin }) 
         <section className="panel-section auth-panel">
             <h2>Sign Up</h2>
             <p>Create an account to save and manage your own budget data.</p>
+
+            {errorMessage && <p className="auth-error">{errorMessage}</p>}
 
             <form onSubmit={handleSignupSubmit}>
                 <label htmlFor="signupUsernameInput">Username</label>

@@ -1,10 +1,13 @@
 import { useState } from "react";
 
-function LoginPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToSignup }) {
+
+function LoginPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToSignup, loadAuthenticatedAppData }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
     async function handleLoginSubmit(event) {
+        setErrorMessage("");
         event.preventDefault();
 
         try {
@@ -27,10 +30,12 @@ function LoginPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToSignup }) 
             }
 
             setCurrentUser(data);
+            await loadAuthenticatedAppData();
             setStatus("Logged in successfully.");
         } catch (error) {
             console.error("Error logging in:", error);
-            setStatus(error.message || "Failed to log in.");
+            setErrorMessage(error.message || "Failed to log in.");
+            setStatus("Failed to log in.");
         }
     }
 
@@ -38,6 +43,8 @@ function LoginPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToSignup }) 
         <section className="panel-section auth-panel">
             <h2>Login</h2>
             <p>Sign in to view and manage your personal budget.</p>
+
+            {errorMessage && <p className="auth-error">{errorMessage}</p>}
 
             <form onSubmit={handleLoginSubmit}>
                 <label htmlFor="loginEmailInput">Email</label>

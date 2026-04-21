@@ -365,6 +365,17 @@ select {
     grid-template-columns: 1fr;
 }
 
+.auth-error {
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(248, 210, 205, 0.45);
+    border: 1px solid rgba(123, 74, 71, 0.16);
+    color: #7b4a47;
+    font-weight: 600;
+}
+
+
 
 
 @media (max-width: 900px) {

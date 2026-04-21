@@ -67,6 +67,31 @@ function App() {
         totalIncome === 0 ? 0 : ((totalIncome - totalExpenses) / totalIncome) * 100;
 
 
+    async function loadAuthenticatedAppData() {
+        const [expensesResponse, incomeSourcesResponse] = await Promise.all([
+            fetch(`${apiBaseUrl}/api/expenses`, {
+                credentials: "include",
+            }),
+            fetch(`${apiBaseUrl}/api/income-sources`, {
+                credentials: "include",
+            }),
+        ]);
+
+        if (!expensesResponse.ok) {
+            throw new Error(`Failed to load expenses: ${expensesResponse.status}`);
+        }
+
+        if (!incomeSourcesResponse.ok) {
+            throw new Error(`Failed to load income sources: ${incomeSourcesResponse.status}`);
+        }
+
+        const expensesData = await expensesResponse.json();
+        const incomeSourcesData = await incomeSourcesResponse.json();
+
+        setExpenses(expensesData);
+        setIncomeSources(incomeSourcesData);
+    }
+
     useEffect(() => {
         async function initializeApp() {
             try {
@@ -85,28 +110,9 @@ function App() {
                 const userData = await meResponse.json();
                 setCurrentUser(userData);
 
-                const [expensesResponse, incomeSourcesResponse] = await Promise.all([
-                    fetch(`${apiBaseUrl}/api/expenses`, {
-                        credentials: "include",
-                    }),
-                    fetch(`${apiBaseUrl}/api/income-sources`, {
-                        credentials: "include",
-                    }),
-                ]);
-
-                if (!expensesResponse.ok) {
-                    throw new Error(`Failed to load expenses: ${expensesResponse.status}`);
-                }
-                if (!incomeSourcesResponse.ok) {
-                    throw new Error(`Failed to load income sources: ${incomeSourcesResponse.status}`);
-                }
-
-                const expensesData = await expensesResponse.json();
-                const incomeSourcesData = await incomeSourcesResponse.json();
-
-                setExpenses(expensesData);
-                setIncomeSources(incomeSourcesData);
+                await loadAuthenticatedAppData();
                 setStatus("Dashboard data loaded successfully.");
+
             } catch (error) {
                 console.error("Error loading dashboard data:", error);
                 setStatus("Failed to load dashboard data.");
@@ -118,6 +124,9 @@ function App() {
 
         initializeApp();
     }, []);
+
+
+
 
     async function handleExpenseSubmit(event) {
         event.preventDefault();
@@ -320,12 +329,14 @@ function App() {
                             apiBaseUrl={apiBaseUrl}
                             setCurrentUser={setCurrentUser}
                             setStatus={setStatus}
+                            loadAuthenticatedAppData={loadAuthenticatedAppData}
                             onSwitchToSignup={() => setAuthMode("signup")}
                         />
                     ) : (
                         <SignupPage
                             apiBaseUrl={apiBaseUrl}
                             setCurrentUser={setCurrentUser}
+                            loadAuthenticatedAppData={loadAuthenticatedAppData}
                             setStatus={setStatus}
                             onSwitchToLogin={() => setAuthMode("login")}
                         />

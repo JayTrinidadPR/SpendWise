@@ -56,6 +56,8 @@ app.post("/api/auth/register", async (req, res) => {
       return res.status(400).json({ error: "Password must be at least 8 characters" });
     }
 
+
+
     const existingUser = await client.query(
       `
       SELECT id
@@ -189,6 +191,11 @@ function isValidEmail(value) {
   return typeof value === "string" && value.includes("@");
 }
 
+function isValidFrequency(value) {
+  return ["weekly", "biweekly", "monthly"].includes(value);
+}
+
+
 function requireAuth(req, res, next) {
   if (!req.session.user) {
     return res.status(401).json({ error: "Not authenticated" });
@@ -296,6 +303,10 @@ app.post("/api/income-sources", requireAuth, async (req, res) => {
 
     if (!isNonEmptyString(source_name)) {
       return res.status(400).json({ error: "Source name is required" });
+    }
+
+    if (!isValidFrequency(frequency)) {
+      return res.status(400).json({ error: "Frequency must be one of: weekly, biweekly, monthly" });
     }
 
     if (Number.isNaN(parsedAmount)) {

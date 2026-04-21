@@ -1,7 +1,8 @@
 require("dotenv").config();
+
 const express = require("express");
-app.set("trust proxy", 1);
-const PORT = process.env.PORT || 3000;
+
+
 const client = require("./db/client");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
@@ -9,6 +10,7 @@ const session = require("express-session");
 const connectPgSimple = require("connect-pg-simple");
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
 app.use(

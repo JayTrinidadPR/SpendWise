@@ -2,6 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const client = require("./db/client");
 const cors = require("cors");
+const bcrypt = require("bcrypt");
+const session = require("express-session");
+const connectPgSimple = require("connect-pg-simple");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,12 +12,149 @@ const PORT = process.env.PORT || 3000;
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    credentials: true,
   })
 );
 app.use(express.json());
 
+const PgSession = connectPgSimple(session);
+
+app.use(
+  session({
+    store: new PgSession({
+      pool: client,
+      tableName: "user_sessions",
+      createTableIfMissing: true,
+    }),
+    secret: process.env.SESSION_SECRET || "dev-session-secret-change-me",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    },
+  })
+);
+
 app.get("/api/health", (req, res) => {
   res.json({ ok: true });
+});
+
+app.post("/api/auth/register", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    
+    if (!isNonEmptyString(username)) {
+      return res.status(400).json({ error: "Username is required" });
+    }
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: "Valid email is required" });
+    }
+    if (!isNonEmptyString(password) || password.length < 8) {
+      return res.status(400).json({ error: "Password must be at least 8 characters" });
+    }
+
+    const existingUser = await client.query(
+      `
+      SELECT id
+      FROM users
+      WHERE username = $1 OR email = $2;
+      `,
+      [username.trim(), email.trim().toLowerCase()]
+    );
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: "Username or email already exists" });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    
+    const result = await client.query(
+      `
+      INSERT INTO users (username, email, password_hash)
+      VALUES ($1, $2, $3)
+      RETURNING id, username, email, created_at;
+      `,
+      [username.trim(), email.trim().toLowerCase(), passwordHash]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error registering user:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: "Valid email is required" });
+    }
+
+    if (!isNonEmptyString(password)) {
+      return res.status(400).json({ error: "Password is required" });
+    }
+
+    const result = await client.query(
+      `
+      SELECT id, username, email, password_hash, created_at
+      FROM users
+      WHERE email = $1;
+      `,
+      [email.trim().toLowerCase()]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const passwordMatches = await bcrypt.compare(password, user.password_hash);
+
+    if (!passwordMatches) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    req.session.user = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    }
+
+    res.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      created_at: user.created_at,
+    });
+  } catch (error) {
+    console.error("Error logging in user:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/api/auth/me", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
+  res.json(req.session.user);
+});
+
+app.post("/api/auth/logout", (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      console.error("Error logging out user:", error);
+      return res.status(500).json({ error: "Server error" });
+    }
+    
+    res.clearCookie("connect.sid");
+    res.json({ success: true });
+  });
 });
 
 function parsePayDate(value) {
@@ -45,10 +185,26 @@ function parseAmount(value) {
   return parsedValue;
 }
 
+function isValidEmail(value) {
+  return typeof value === "string" && value.includes("@");
+}
 
-app.get("/api/expenses", async (req, res) => {
+function requireAuth(req, res, next) {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+  next();
+}
+
+app.get("/api/expenses", requireAuth, async (req, res) => {
   try {
-    const result = await client.query("SELECT * FROM expenses;");
+    const userId = req.session.user.id;
+    
+    const result = await client.query(
+      `SELECT * FROM expenses WHERE user_id = $1 ORDER BY created_at DESC;
+      `, 
+      [userId]
+    );
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching expenses:", error);
@@ -56,8 +212,9 @@ app.get("/api/expenses", async (req, res) => {
   }
 });
 
-app.post("/api/expenses", async (req, res) => {
+app.post("/api/expenses", requireAuth, async (req, res) => {
   try {
+    const userId = req.session.user.id;
     const { title, amount, category } = req.body;
     const parsedAmount = parseAmount(amount);
 
@@ -75,11 +232,11 @@ app.post("/api/expenses", async (req, res) => {
 
     const result = await client.query(
       `
-      INSERT INTO expenses (title, amount, category)
-      VALUES ($1, $2, $3)
+      INSERT INTO expenses (user_id, title, amount, category)
+      VALUES ($1, $2, $3, $4)
       RETURNING *;
       `,
-      [title.trim(), parsedAmount, category.trim()]
+      [userId, title.trim(), parsedAmount, category.trim()]
     );
 
     res.status(201).json(result.rows[0]);
@@ -89,17 +246,18 @@ app.post("/api/expenses", async (req, res) => {
   }
 });
 
-app.delete("/api/expenses/:id", async (req, res) => {
+app.delete("/api/expenses/:id", requireAuth, async (req, res) => {
   try {
+    const userId = req.session.user.id;
     const { id } = req.params;
 
     const result = await client.query(
       `
       DELETE FROM expenses
-      WHERE id = $1
+      WHERE id = $1 AND user_id = $2
       RETURNING *;
       `,
-      [id]
+      [id, userId]
     );
 
     if (!result.rows.length) {
@@ -113,9 +271,14 @@ app.delete("/api/expenses/:id", async (req, res) => {
   }
 });
 
-app.get("/api/income-sources", async (req, res) => {
+app.get("/api/income-sources", requireAuth, async (req, res) => {
   try {
-    const result = await client.query("SELECT * FROM income_sources;");
+    const userId = req.session.user.id;
+    const result = await client.query(
+
+      `SELECT * FROM income_sources WHERE user_id = $1 ORDER BY created_at DESC;`,
+      [userId]
+    );
     res.json(result.rows);
   } catch (error) {
     console.error("Error fetching income sources:", error);
@@ -123,8 +286,9 @@ app.get("/api/income-sources", async (req, res) => {
   }
 });
 
-app.post("/api/income-sources", async (req, res) => {
+app.post("/api/income-sources", requireAuth, async (req, res) => {
   try {
+    const userId = req.session.user.id;
     const { source_name, amount, frequency, pay_date_1, pay_date_2 } = req.body;
     const parsedAmount = parseAmount(amount);
     const parsedPayDate1 = parsePayDate(pay_date_1);
@@ -152,11 +316,11 @@ app.post("/api/income-sources", async (req, res) => {
 
     const result = await client.query(
       `
-      INSERT INTO income_sources (source_name, amount, frequency, pay_date_1, pay_date_2)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO income_sources (user_id, source_name, amount, frequency, pay_date_1, pay_date_2)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
       `,
-      [source_name.trim(), parsedAmount, frequency.trim(), parsedPayDate1, parsedPayDate2]
+      [userId, source_name.trim(), parsedAmount, frequency.trim(), parsedPayDate1, parsedPayDate2]
     );
 
     res.status(201).json(result.rows[0]);
@@ -179,17 +343,18 @@ async function startServer() {
   }
 }
 
-app.delete("/api/income-sources/:id", async (req, res) => {
+app.delete("/api/income-sources/:id", requireAuth, async (req, res) => {
   try {
+    const userId = req.session.user.id;
     const { id } = req.params;
 
     const result = await client.query(
       `
       DELETE FROM income_sources
-      WHERE id = $1
+      WHERE id = $1 AND user_id = $2
       RETURNING *;
       `,
-      [id]
+      [id, userId]
     );
 
     if (!result.rows.length) {

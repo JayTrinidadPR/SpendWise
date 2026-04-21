@@ -6,13 +6,16 @@ async function createTables() {
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(50) UNIQUE NOT NULL,
-                email VARCHAR(100) UNIQUE NOT NULL
+                email VARCHAR(100) UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
 
         await client.query(`
             CREATE TABLE IF NOT EXISTS expenses (
                 id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 title VARCHAR(100) NOT NULL,
                 amount NUMERIC(10, 2) NOT NULL,
                 category VARCHAR(50) NOT NULL,
@@ -23,6 +26,7 @@ async function createTables() {
         await client.query(`
             CREATE TABLE IF NOT EXISTS income_sources (
                 id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 source_name VARCHAR(100) NOT NULL,
                 amount NUMERIC(10,2) NOT NULL,
                 frequency VARCHAR(20) NOT NULL CHECK (frequency IN ('weekly', 'biweekly', 'monthly')),

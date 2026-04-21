@@ -314,6 +314,59 @@ select {
     font-weight: 600;
 }
 
+.app-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.welcome-text {
+    margin: 0;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.auth-panel {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 36px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+}
+
+.auth-panel h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 2.2rem;
+    font-family: "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+}
+
+.auth-panel p {
+    margin-bottom: 24px;
+}
+
+.auth-switch-button {
+    margin-top: 16px;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.auth-switch-button:hover {
+    background: rgba(127, 179, 213, 0.12);
+    color: var(--text);
+}
+
+.page-shell:has(.auth-panel) {
+    grid-template-columns: 1fr;
+}
+
+
+
 @media (max-width: 900px) {
     .page-shell {
         grid-template-columns: 1fr;
@@ -352,6 +405,18 @@ select {
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .app-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .auth-panel {
+        padding: 24px;
+    }
+
+
+
 }
 
 .insight-card {

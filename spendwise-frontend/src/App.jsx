@@ -5,6 +5,8 @@ import ExpensesPage from "./components/ExpensesPage.jsx";
 import IncomePage from "./components/IncomePage.jsx";
 import PlaceholderPage from "./components/PlaceholderPage.jsx";
 import InsightsPage from "./components/InsightsPage.jsx";
+import LoginPage from "./components/LoginPage.jsx";
+import SignupPage from "./components/SignupPage.jsx";
 
 
 
@@ -16,6 +18,8 @@ function App() {
     const [amount, setAmount] = useState("");
     const [category, setCategory] = useState("");
     const [status, setStatus] = useState("Ready");
+    const [currentUser, setCurrentUser] = useState(null);
+    const [authMode, setAuthMode] = useState("login");
     const [expenses, setExpenses] = useState([]);
     const [incomeSources, setIncomeSources] = useState([]);
     const [sourceName, setSourceName] = useState("");
@@ -64,12 +68,30 @@ function App() {
 
 
     useEffect(() => {
-        async function loadDashboardData() {
+        async function initializeApp() {
             try {
                 setIsLoadingDashboard(true);
+
+                const meResponse = await fetch(`${apiBaseUrl}/api/auth/me`, {
+                    credentials: "include",
+                });
+
+                if (!meResponse.ok) {
+                    setCurrentUser(null);
+                    setStatus("Please log in to view your budget.");
+                    return;
+                }
+
+                const userData = await meResponse.json();
+                setCurrentUser(userData);
+
                 const [expensesResponse, incomeSourcesResponse] = await Promise.all([
-                    fetch(`${apiBaseUrl}/api/expenses`),
-                    fetch(`${apiBaseUrl}/api/income-sources`),
+                    fetch(`${apiBaseUrl}/api/expenses`, {
+                        credentials: "include",
+                    }),
+                    fetch(`${apiBaseUrl}/api/income-sources`, {
+                        credentials: "include",
+                    }),
                 ]);
 
                 if (!expensesResponse.ok) {
@@ -94,7 +116,7 @@ function App() {
             }
         }
 
-        loadDashboardData();
+        initializeApp();
     }, []);
 
     async function handleExpenseSubmit(event) {
@@ -109,6 +131,7 @@ function App() {
         try {
             const response = await fetch(`${apiBaseUrl}/api/expenses`, {
                 method: "POST",
+                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -137,6 +160,10 @@ function App() {
         try {
             const response = await fetch(`${apiBaseUrl}/api/expenses/${expenseId}`, {
                 method: "DELETE",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
             });
 
             if (!response.ok) {
@@ -145,6 +172,7 @@ function App() {
 
             setStatus("Expense deleted successfully.");
             await loadExpenses();
+
         } catch (error) {
             console.error("Error deleting expense:", error);
             setStatus("Failed to delete expense.");
@@ -157,6 +185,10 @@ function App() {
         try {
             const response = await fetch(`${apiBaseUrl}/api/income-sources/${sourceId}`, {
                 method: "DELETE",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
             });
 
             if (!response.ok) {
@@ -165,6 +197,7 @@ function App() {
 
             setStatus("Income source deleted successfully.");
             await loadIncomeSources();
+
         } catch (error) {
             console.error("Error deleting income source:", error);
             setStatus("Failed to delete income source.");
@@ -175,7 +208,9 @@ function App() {
         setStatus("Loading expenses...");
 
         try {
-            const response = await fetch(`${apiBaseUrl}/api/expenses`);
+            const response = await fetch(`${apiBaseUrl}/api/expenses`, {
+                credentials: "include",
+            });
 
             if (!response.ok) {
                 throw new Error(`Request failed with status ${response.status}`);
@@ -194,7 +229,9 @@ function App() {
         setStatus("Loading income sources...");
 
         try {
-            const response = await fetch(`${apiBaseUrl}/api/income-sources`);
+            const response = await fetch(`${apiBaseUrl}/api/income-sources`, {
+                credentials: "include",
+            });
 
             if (!response.ok) {
                 throw new Error(`Request failed with status ${response.status}`);
@@ -223,6 +260,7 @@ function App() {
         try {
             const response = await fetch(`${apiBaseUrl}/api/income-sources`, {
                 method: "POST",
+                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -248,74 +286,122 @@ function App() {
 
     }
 
+    async function handleLogout() {
+        try {
+            const response = await fetch(`${apiBaseUrl}/api/auth/logout`, {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                throw new Error(`Logout failed with status ${response.status}`);
+            }
+
+            setCurrentUser(null);
+            setExpenses([]);
+            setIncomeSources([]);
+            setStatus("Logged out successfully.");
+            setAuthMode("login");
+        } catch (error) {
+            console.error("Error logging out:", error);
+            setStatus("Failed to log out.");
+        }
+    }
+
     return (
         <main className="page-shell">
-            <Sidebar activePage={activePage} setActivePage={setActivePage} />
-
+            {currentUser && (
+                <Sidebar activePage={activePage} setActivePage={setActivePage} />
+            )}
             <section className="main-panel">
-                {activePage === "dashboard" && (
-                    <DashboardPage
-                        totalIncome={totalIncome}
-                        totalExpenses={totalExpenses}
-                        remainingBalance={remainingBalance}
-                        recentExpenses={recentExpenses}
-                        recentIncomeSources={recentIncomeSources}
-                        expenseCategoryBreakdown={expenseCategoryBreakdown}
-                        topExpenseCategory={topExpenseCategory}
-                        isLoadingDashboard={isLoadingDashboard}
-                    />
-                )}
+                {!currentUser ? (
+                    authMode === "login" ? (
+                        <LoginPage
+                            apiBaseUrl={apiBaseUrl}
+                            setCurrentUser={setCurrentUser}
+                            setStatus={setStatus}
+                            onSwitchToSignup={() => setAuthMode("signup")}
+                        />
+                    ) : (
+                        <SignupPage
+                            apiBaseUrl={apiBaseUrl}
+                            setCurrentUser={setCurrentUser}
+                            setStatus={setStatus}
+                            onSwitchToLogin={() => setAuthMode("login")}
+                        />
+                    )
+                ) : (
+                    <>
+                        <div className="app-toolbar">
+                            <p className="welcome-text">Signed in as {currentUser.username}</p>
+                            <button type="button" className="delete-button" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </div>
+                        {activePage === "dashboard" && (
+                            <DashboardPage
+                                totalIncome={totalIncome}
+                                totalExpenses={totalExpenses}
+                                remainingBalance={remainingBalance}
+                                recentExpenses={recentExpenses}
+                                recentIncomeSources={recentIncomeSources}
+                                expenseCategoryBreakdown={expenseCategoryBreakdown}
+                                topExpenseCategory={topExpenseCategory}
+                                isLoadingDashboard={isLoadingDashboard}
+                            />
+                        )}
 
-                {activePage === "income" && (
-                    <IncomePage
-                        sourceName={sourceName}
-                        setSourceName={setSourceName}
-                        incomeAmount={incomeAmount}
-                        setIncomeAmount={setIncomeAmount}
-                        frequency={frequency}
-                        setFrequency={setFrequency}
-                        payDate1={payDate1}
-                        setPayDate1={setPayDate1}
-                        payDate2={payDate2}
-                        setPayDate2={setPayDate2}
-                        incomeSources={incomeSources}
-                        loadIncomeSources={loadIncomeSources}
-                        handleIncomeSourceSubmit={handleIncomeSourceSubmit}
-                        handleIncomeSourceDelete={handleIncomeSourceDelete}
-                    />
-                )}
+                        {activePage === "income" && (
+                            <IncomePage
+                                sourceName={sourceName}
+                                setSourceName={setSourceName}
+                                incomeAmount={incomeAmount}
+                                setIncomeAmount={setIncomeAmount}
+                                frequency={frequency}
+                                setFrequency={setFrequency}
+                                payDate1={payDate1}
+                                setPayDate1={setPayDate1}
+                                payDate2={payDate2}
+                                setPayDate2={setPayDate2}
+                                incomeSources={incomeSources}
+                                loadIncomeSources={loadIncomeSources}
+                                handleIncomeSourceSubmit={handleIncomeSourceSubmit}
+                                handleIncomeSourceDelete={handleIncomeSourceDelete}
+                            />
+                        )}
 
-                {activePage === "expenses" && (
-                    <ExpensesPage
-                        title={title}
-                        setTitle={setTitle}
-                        amount={amount}
-                        setAmount={setAmount}
-                        category={category}
-                        setCategory={setCategory}
-                        expenses={expenses}
-                        handleExpenseSubmit={handleExpenseSubmit}
-                        loadExpenses={loadExpenses}
-                        handleExpenseDelete={handleExpenseDelete}
-                    />
-                )}
+                        {activePage === "expenses" && (
+                            <ExpensesPage
+                                title={title}
+                                setTitle={setTitle}
+                                amount={amount}
+                                setAmount={setAmount}
+                                category={category}
+                                setCategory={setCategory}
+                                expenses={expenses}
+                                handleExpenseSubmit={handleExpenseSubmit}
+                                loadExpenses={loadExpenses}
+                                handleExpenseDelete={handleExpenseDelete}
+                            />
+                        )}
 
-                {activePage === "insights" && (
-                    <InsightsPage
-                        topExpenseCategory={topExpenseCategory}
-                        totalExpenseCount={totalExpenseCount}
-                        averageExpenseAmount={averageExpenseAmount}
-                        savingsRate={savingsRate}
-                    />
-                )}
+                        {activePage === "insights" && (
+                            <InsightsPage
+                                topExpenseCategory={topExpenseCategory}
+                                totalExpenseCount={totalExpenseCount}
+                                averageExpenseAmount={averageExpenseAmount}
+                                savingsRate={savingsRate}
+                            />
+                        )}
 
-                {activePage === "settings" && (
-                    <PlaceholderPage
-                        title="Settings"
-                        description="This page is coming soon. It will hold user preferences and account options."
-                    />
+                        {activePage === "settings" && (
+                            <PlaceholderPage
+                                title="Settings"
+                                description="This page is coming soon. It will hold user preferences and account options."
+                            />
+                        )}
+                    </>
                 )}
-
             </section>
         </main >
     );

@@ -8,7 +8,7 @@ import InsightsPage from "./components/InsightsPage.jsx";
 import LoginPage from "./components/LoginPage.jsx";
 import SignupPage from "./components/SignupPage.jsx";
 
-
+const TOKEN_STORAGE_KEY = "spendwise_auth_token";
 
 const apiBaseUrl = (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/$/, "");
 
@@ -19,6 +19,7 @@ function App() {
     const [category, setCategory] = useState("");
     const [status, setStatus] = useState("Ready");
     const [currentUser, setCurrentUser] = useState(null);
+    const [authToken, setAuthToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) || "");
     const [authMode, setAuthMode] = useState("login");
     const [expenses, setExpenses] = useState([]);
     const [incomeSources, setIncomeSources] = useState([]);
@@ -66,14 +67,45 @@ function App() {
     const savingsRate =
         totalIncome === 0 ? 0 : ((totalIncome - totalExpenses) / totalIncome) * 100;
 
+    function getAuthorizationHeader(tokenOverride = authToken) {
+        const token = tokenOverride || localStorage.getItem(TOKEN_STORAGE_KEY);
 
-    async function loadAuthenticatedAppData() {
+        if (!token) {
+            return null;
+        }
+
+        return {
+            Authorization: `Bearer ${token}`,
+        };
+    }
+
+    function persistAuth(authResponse) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, authResponse.token);
+        setAuthToken(authResponse.token);
+        setCurrentUser(authResponse.user);
+    }
+
+    function clearAuth() {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        setAuthToken("");
+        setCurrentUser(null);
+        setExpenses([]);
+        setIncomeSources([]);
+    }
+
+    async function loadAuthenticatedAppData(tokenOverride = authToken) {
+        const authorizationHeader = getAuthorizationHeader(tokenOverride);
+
+        if (!authorizationHeader) {
+            throw new Error("Missing authentication token");
+        }
+
         const [expensesResponse, incomeSourcesResponse] = await Promise.all([
             fetch(`${apiBaseUrl}/api/expenses`, {
-                credentials: "include",
+                headers: authorizationHeader,
             }),
             fetch(`${apiBaseUrl}/api/income-sources`, {
-                credentials: "include",
+                headers: authorizationHeader,
             }),
         ]);
 
@@ -97,24 +129,34 @@ function App() {
             try {
                 setIsLoadingDashboard(true);
 
+                const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+
+                if (!storedToken) {
+                    clearAuth();
+                    setStatus("Please log in to view your budget.");
+                    return;
+                }
+
                 const meResponse = await fetch(`${apiBaseUrl}/api/auth/me`, {
-                    credentials: "include",
+                    headers: getAuthorizationHeader(storedToken),
                 });
 
                 if (!meResponse.ok) {
-                    setCurrentUser(null);
+                    clearAuth();
                     setStatus("Please log in to view your budget.");
                     return;
                 }
 
                 const userData = await meResponse.json();
                 setCurrentUser(userData);
+                setAuthToken(storedToken);
 
-                await loadAuthenticatedAppData();
+                await loadAuthenticatedAppData(storedToken);
                 setStatus("Dashboard data loaded successfully.");
 
             } catch (error) {
                 console.error("Error loading dashboard data:", error);
+                clearAuth();
                 setStatus("Failed to load dashboard data.");
             }
             finally {
@@ -140,8 +182,8 @@ function App() {
         try {
             const response = await fetch(`${apiBaseUrl}/api/expenses`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
+                    ...getAuthorizationHeader(),
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(newExpense),
@@ -169,10 +211,7 @@ function App() {
         try {
             const response = await fetch(`${apiBaseUrl}/api/expenses/${expenseId}`, {
                 method: "DELETE",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthorizationHeader(),
             });
 
             if (!response.ok) {
@@ -194,10 +233,7 @@ function App() {
         try {
             const response = await fetch(`${apiBaseUrl}/api/income-sources/${sourceId}`, {
                 method: "DELETE",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: getAuthorizationHeader(),
             });
 
             if (!response.ok) {
@@ -218,7 +254,7 @@ function App() {
 
         try {
             const response = await fetch(`${apiBaseUrl}/api/expenses`, {
-                credentials: "include",
+                headers: getAuthorizationHeader(),
             });
 
             if (!response.ok) {
@@ -239,7 +275,7 @@ function App() {
 
         try {
             const response = await fetch(`${apiBaseUrl}/api/income-sources`, {
-                credentials: "include",
+                headers: getAuthorizationHeader(),
             });
 
             if (!response.ok) {
@@ -269,8 +305,8 @@ function App() {
         try {
             const response = await fetch(`${apiBaseUrl}/api/income-sources`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
+                    ...getAuthorizationHeader(),
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(newIncomeSource),
@@ -297,18 +333,7 @@ function App() {
 
     async function handleLogout() {
         try {
-            const response = await fetch(`${apiBaseUrl}/api/auth/logout`, {
-                method: "POST",
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error(`Logout failed with status ${response.status}`);
-            }
-
-            setCurrentUser(null);
-            setExpenses([]);
-            setIncomeSources([]);
+            clearAuth();
             setStatus("Logged out successfully.");
             setAuthMode("login");
         } catch (error) {
@@ -327,7 +352,7 @@ function App() {
                     authMode === "login" ? (
                         <LoginPage
                             apiBaseUrl={apiBaseUrl}
-                            setCurrentUser={setCurrentUser}
+                            persistAuth={persistAuth}
                             setStatus={setStatus}
                             loadAuthenticatedAppData={loadAuthenticatedAppData}
                             onSwitchToSignup={() => setAuthMode("signup")}
@@ -335,7 +360,7 @@ function App() {
                     ) : (
                         <SignupPage
                             apiBaseUrl={apiBaseUrl}
-                            setCurrentUser={setCurrentUser}
+                            persistAuth={persistAuth}
                             loadAuthenticatedAppData={loadAuthenticatedAppData}
                             setStatus={setStatus}
                             onSwitchToLogin={() => setAuthMode("login")}

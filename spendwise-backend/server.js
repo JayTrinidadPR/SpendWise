@@ -1,46 +1,19 @@
 require("dotenv").config();
-
 const express = require("express");
-
-
 const client = require("./db/client");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const session = require("express-session");
-const connectPgSimple = require("connect-pg-simple");
+const jwt = require("jsonwebtoken");
 
 const app = express();
-app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
-    credentials: true,
   })
 );
 app.use(express.json());
-
-const PgSession = connectPgSimple(session);
-
-app.use(
-  session({
-    store: new PgSession({
-      pool: client,
-      tableName: "user_sessions",
-      createTableIfMissing: true,
-    }),
-    secret: process.env.SESSION_SECRET || "dev-session-secret-change-me",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    },
-  })
-);
 
 app.get("/api/health", (req, res) => {
   res.json({ ok: true });
@@ -49,7 +22,7 @@ app.get("/api/health", (req, res) => {
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    
+
     if (!isNonEmptyString(username)) {
       return res.status(400).json({ error: "Username is required" });
     }
@@ -75,7 +48,7 @@ app.post("/api/auth/register", async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    
+
     const result = await client.query(
       `
       INSERT INTO users (username, email, password_hash)
@@ -84,8 +57,15 @@ app.post("/api/auth/register", async (req, res) => {
       `,
       [username.trim(), email.trim().toLowerCase(), passwordHash]
     );
+    const newUser = result.rows[0];
+    const token = createToken(newUser);
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({
+      token,
+      user: newUser,
+    });
+
+
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ error: "Server error" });
@@ -125,42 +105,33 @@ app.post("/api/auth/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    req.session.user = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-    }
-
-    res.json({
+    const safeUser = {
       id: user.id,
       username: user.username,
       email: user.email,
       created_at: user.created_at,
+    };
+
+    const token = createToken(safeUser);
+
+    res.json({
+      token,
+      user: safeUser,
     });
+
+
   } catch (error) {
     console.error("Error logging in user:", error);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-app.get("/api/auth/me", (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ error: "Not authenticated" });
-  }
-
-  res.json(req.session.user);
+app.get("/api/auth/me", requireAuth, (req, res) => {
+  res.json(req.user);
 });
 
 app.post("/api/auth/logout", (req, res) => {
-  req.session.destroy((error) => {
-    if (error) {
-      console.error("Error logging out user:", error);
-      return res.status(500).json({ error: "Server error" });
-    }
-    
-    res.clearCookie("connect.sid");
-    res.json({ success: true });
-  });
+  res.json({ success: true });
 });
 
 function parsePayDate(value) {
@@ -200,20 +171,44 @@ function isValidFrequency(value) {
 }
 
 
+function createToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+}
+
 function requireAuth(req, res, next) {
-  if (!req.session.user) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Not authenticated" });
   }
-  next();
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
 }
+
 
 app.get("/api/expenses", requireAuth, async (req, res) => {
   try {
-    const userId = req.session.user.id;
-    
+    const userId = req.user.id;
+
     const result = await client.query(
       `SELECT * FROM expenses WHERE user_id = $1 ORDER BY created_at DESC;
-      `, 
+      `,
       [userId]
     );
     res.json(result.rows);
@@ -225,7 +220,7 @@ app.get("/api/expenses", requireAuth, async (req, res) => {
 
 app.post("/api/expenses", requireAuth, async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.user.id;
     const { title, amount, category } = req.body;
     const parsedAmount = parseAmount(amount);
 
@@ -259,7 +254,7 @@ app.post("/api/expenses", requireAuth, async (req, res) => {
 
 app.delete("/api/expenses/:id", requireAuth, async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.user.id;
     const { id } = req.params;
 
     const result = await client.query(
@@ -284,7 +279,7 @@ app.delete("/api/expenses/:id", requireAuth, async (req, res) => {
 
 app.get("/api/income-sources", requireAuth, async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.user.id;
     const result = await client.query(
 
       `SELECT * FROM income_sources WHERE user_id = $1 ORDER BY created_at DESC;`,
@@ -299,7 +294,7 @@ app.get("/api/income-sources", requireAuth, async (req, res) => {
 
 app.post("/api/income-sources", requireAuth, async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.user.id;
     const { source_name, amount, frequency, pay_date_1, pay_date_2 } = req.body;
     const parsedAmount = parseAmount(amount);
     const parsedPayDate1 = parsePayDate(pay_date_1);
@@ -316,7 +311,7 @@ app.post("/api/income-sources", requireAuth, async (req, res) => {
     if (Number.isNaN(parsedAmount)) {
       return res.status(400).json({ error: "Amount must be a positive number" });
     }
-    
+
     if (parsedPayDate1 === null || Number.isNaN(parsedPayDate1)) {
       return res.status(400).json({
         error: "pay_date_1 must be an integer between 1 and 31",
@@ -360,7 +355,7 @@ async function startServer() {
 
 app.delete("/api/income-sources/:id", requireAuth, async (req, res) => {
   try {
-    const userId = req.session.user.id;
+    const userId = req.user.id;
     const { id } = req.params;
 
     const result = await client.query(

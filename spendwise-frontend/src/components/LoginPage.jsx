@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-
-function LoginPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToSignup, loadAuthenticatedAppData }) {
+function LoginPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToSignup, loadAuthenticatedAppData }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -13,7 +12,6 @@ function LoginPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToSignup, lo
         try {
             const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -29,13 +27,13 @@ function LoginPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToSignup, lo
                 throw new Error(data.error || "Login failed");
             }
 
-            setCurrentUser(data);
-            await loadAuthenticatedAppData();
+            persistAuth(data);
+            await loadAuthenticatedAppData(data.token);
             setStatus("Logged in successfully.");
         } catch (error) {
             console.error("Error logging in:", error);
             setErrorMessage(error.message || "Failed to log in.");
-            setStatus("Failed to log in.");
+            setStatus(error.message || "Failed to log in.");
         }
     }
 

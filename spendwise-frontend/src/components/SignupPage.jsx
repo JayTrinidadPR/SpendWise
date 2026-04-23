@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function SignupPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToLogin, loadAuthenticatedAppData }) {
+function SignupPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToLogin, loadAuthenticatedAppData }) {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -13,7 +13,6 @@ function SignupPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToLogin, lo
         try {
             const registerResponse = await fetch(`${apiBaseUrl}/api/auth/register`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -30,26 +29,8 @@ function SignupPage({ apiBaseUrl, setCurrentUser, setStatus, onSwitchToLogin, lo
                 throw new Error(registerData.error || "Signup failed");
             }
 
-            const loginResponse = await fetch(`${apiBaseUrl}/api/auth/login`, {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
-            });
-
-            const loginData = await loginResponse.json();
-
-            if (!loginResponse.ok) {
-                throw new Error(loginData.error || "Auto-login failed");
-            }
-
-            setCurrentUser(loginData);
-            await loadAuthenticatedAppData();
+            persistAuth(registerData);
+            await loadAuthenticatedAppData(registerData.token);
             setStatus("Account created successfully.");
         } catch (error) {
             console.error("Error signing up:", error);

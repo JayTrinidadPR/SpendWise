@@ -83,28 +83,16 @@ select {
     gap: 10px;
 }
 
-.logo-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    color: var(--text);
+.logo-image {
+    width: 54px;
+    height: 54px;
+    object-fit: contain;
+    display: block;
 }
 
-.logo-badge-compact .logo-mark {
-    width: 28px;
-    height: 28px;
-}
-
-.logo-mark svg {
-    width: 100%;
-    height: 100%;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.9;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+.logo-badge-compact .logo-image {
+    width: 38px;
+    height: 38px;
 }
 
 .logo-wordmark {
@@ -427,6 +415,10 @@ select {
     grid-template-columns: 1fr;
 }
 
+.page-shell:has(.landing-shell) {
+    grid-template-columns: 1fr;
+}
+
 .auth-error {
     margin: 0 0 18px;
     padding: 12px 14px;
@@ -482,6 +474,242 @@ select {
 
 .settings-session-text {
     margin-bottom: 18px;
+}
+
+.landing-shell {
+    display: grid;
+    gap: 28px;
+    min-height: calc(100vh - 128px);
+}
+
+.landing-header {
+    display: flex;
+    align-items: center;
+}
+
+.landing-header-label {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.landing-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    gap: 32px;
+    align-items: stretch;
+}
+
+.landing-hero,
+.landing-preview {
+    min-width: 0;
+}
+
+.landing-hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 22px;
+    padding: 40px;
+    border-radius: var(--radius-xl);
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.92), transparent 40%),
+        linear-gradient(145deg, rgba(255, 248, 242, 0.96), rgba(247, 238, 229, 0.88));
+    border: 1px solid rgba(117, 92, 72, 0.1);
+    box-shadow: var(--shadow);
+}
+
+.landing-hero .logo-badge {
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.landing-hero h1 {
+    margin: 0;
+    max-width: 11ch;
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+    font-family: "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    color: #21354c;
+}
+
+.landing-feature-list {
+    list-style: none;
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+.landing-feature-list li {
+    position: relative;
+    padding-left: 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.landing-feature-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f3a300, #46b34a);
+    box-shadow: 0 0 0 6px rgba(127, 179, 213, 0.1);
+}
+
+.landing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 6px;
+}
+
+.landing-actions .auth-switch-button {
+    margin-top: 0;
+}
+
+.landing-preview {
+    display: grid;
+    gap: 20px;
+}
+
+.landing-preview-card {
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.landing-preview-main {
+    padding: 30px;
+    background:
+        radial-gradient(circle at top right, rgba(198, 235, 214, 0.48), transparent 30%),
+        linear-gradient(150deg, rgba(255, 255, 255, 0.94), rgba(244, 235, 226, 0.88));
+}
+
+.landing-preview-main h2,
+.landing-preview-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-family: "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    color: #21354c;
+}
+
+.landing-preview-main h2 {
+    font-size: 1.7rem;
+}
+
+.landing-preview-card h3 {
+    font-size: 1.3rem;
+}
+
+.landing-preview-card p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.landing-preview-amount {
+    margin: 8px 0 10px;
+    font-size: 3.1rem;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    color: #21354c;
+}
+
+.landing-preview-caption {
+    max-width: 34ch;
+}
+
+.landing-preview-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 24px;
+}
+
+.landing-preview-stats div {
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid rgba(117, 92, 72, 0.08);
+}
+
+.landing-preview-stats span {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.landing-preview-stats strong {
+    font-size: 1.4rem;
+    color: var(--text);
+}
+
+.landing-preview-bars {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    height: 150px;
+    margin-top: 28px;
+    padding-top: 20px;
+}
+
+.landing-preview-bars span {
+    flex: 1;
+    border-radius: 999px 999px 18px 18px;
+    background: linear-gradient(180deg, rgba(127, 179, 213, 0.3), rgba(81, 137, 173, 0.88));
+    min-height: 46px;
+}
+
+.landing-preview-bars span:nth-child(1) {
+    height: 48%;
+}
+
+.landing-preview-bars span:nth-child(2) {
+    height: 72%;
+}
+
+.landing-preview-bars span:nth-child(3) {
+    height: 58%;
+}
+
+.landing-preview-bars span:nth-child(4) {
+    height: 100%;
+    background: linear-gradient(180deg, rgba(163, 223, 99, 0.34), rgba(72, 165, 60, 0.92));
+}
+
+.landing-preview-bars span:nth-child(5) {
+    height: 64%;
+}
+
+.landing-preview-bars span:nth-child(6) {
+    height: 78%;
+}
+
+.landing-preview-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.landing-preview-secondary strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: var(--text);
 }
 
 .record-actions {
@@ -544,6 +772,43 @@ select {
 
     .auth-panel {
         padding: 24px;
+    }
+
+    .landing-shell {
+        min-height: auto;
+        gap: 22px;
+    }
+
+    .landing-grid,
+    .landing-preview-secondary,
+    .landing-preview-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .landing-hero,
+    .landing-preview-main,
+    .landing-preview-card {
+        padding: 24px;
+    }
+
+    .landing-hero h1 {
+        max-width: none;
+        font-size: clamp(2.6rem, 13vw, 4rem);
+    }
+
+    .landing-actions {
+        width: 100%;
+    }
+
+    .landing-actions .button,
+    .landing-actions .auth-switch-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .landing-preview-bars {
+        height: 120px;
+        gap: 10px;
     }
 
     .settings-hero {

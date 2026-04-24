@@ -3,12 +3,12 @@ import Sidebar from "./components/Sidebar.jsx";
 import DashboardPage from "./components/DashboardPage.jsx";
 import ExpensesPage from "./components/ExpensesPage.jsx";
 import IncomePage from "./components/IncomePage.jsx";
-import PlaceholderPage from "./components/PlaceholderPage.jsx";
 import InsightsPage from "./components/InsightsPage.jsx";
 import LoginPage from "./components/LoginPage.jsx";
 import SignupPage from "./components/SignupPage.jsx";
 import SettingsPage from "./components/SettingsPage.jsx";
 import LogoBadge from "./components/LogoBadge.jsx";
+import LandingPage from "./components/LandingPage.jsx";
 
 
 const TOKEN_STORAGE_KEY = "spendwise_auth_token";
@@ -23,7 +23,7 @@ function App() {
     const [status, setStatus] = useState("Ready");
     const [currentUser, setCurrentUser] = useState(null);
     const [authToken, setAuthToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) || "");
-    const [authMode, setAuthMode] = useState("login");
+    const [authMode, setAuthMode] = useState("landing");
     const [expenses, setExpenses] = useState([]);
     const [incomeSources, setIncomeSources] = useState([]);
     const [sourceName, setSourceName] = useState("");
@@ -392,7 +392,7 @@ function App() {
         try {
             clearAuth();
             setStatus("Logged out successfully.");
-            setAuthMode("login");
+            setAuthMode("landing");
         } catch (error) {
             console.error("Error logging out:", error);
             setStatus("Failed to log out.");
@@ -406,7 +406,12 @@ function App() {
             )}
             <section className="main-panel">
                 {!currentUser ? (
-                    authMode === "login" ? (
+                    authMode === "landing" ? (
+                        <LandingPage
+                            onCreateAccount={() => setAuthMode("signup")}
+                            onLogIn={() => setAuthMode("login")}
+                        />
+                    ) : authMode === "login" ? (
                         <LoginPage
                             apiBaseUrl={apiBaseUrl}
                             persistAuth={persistAuth}

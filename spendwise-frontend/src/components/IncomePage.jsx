@@ -10,9 +10,11 @@ function IncomePage({
     payDate2,
     setPayDate2,
     incomeSources,
-    loadIncomeSources,
     handleIncomeSourceSubmit,
-    handleIncomeSourceDelete
+    handleIncomeSourceDelete,
+    editingIncomeSourceId,
+    handleIncomeSourceEditStart,
+    handleIncomeSourceEditCancel
 }) {
     return (
         <section className="panel-section">
@@ -75,23 +77,41 @@ function IncomePage({
 
 
                 <button type="submit" className="button">
-                    Add Income Source
+                    {editingIncomeSourceId ? "Save Changes" : "Add Income Source"}
                 </button>
+
+                {editingIncomeSourceId && (
+                    <button
+                        type="button"
+                        className="button auth-switch-button"
+                        onClick={handleIncomeSourceEditCancel}
+                    >
+                        Cancel Edit
+                    </button>
+                )}
             </form>
-            <button type="button" className="button" onClick={loadIncomeSources}>
-                Load Income Sources
-            </button>
             <ul className="income-sources-list">
                 {incomeSources.map((source) => (
                     <li key={source.id}>
-                        {source.source_name} - ${source.amount} ({source.frequency})
-                        <button
-                            type="button"
-                            className="delete-button"
-                            onClick={() => handleIncomeSourceDelete(source.id)}
-                        >
-                            Remove
-                        </button>
+                        <span>
+                            {source.source_name} - ${source.amount} ({source.frequency})
+                        </span>
+                        <div className="record-actions">
+                            <button
+                                type="button"
+                                className="button auth-switch-button"
+                                onClick={() => handleIncomeSourceEditStart(source)}
+                            >
+                                Edit
+                            </button>
+                            <button
+                                type="button"
+                                className="delete-button"
+                                onClick={() => handleIncomeSourceDelete(source.id)}
+                            >
+                                Remove
+                            </button>
+                        </div>
                     </li>
                 ))}
             </ul>

@@ -7,6 +7,9 @@ import PlaceholderPage from "./components/PlaceholderPage.jsx";
 import InsightsPage from "./components/InsightsPage.jsx";
 import LoginPage from "./components/LoginPage.jsx";
 import SignupPage from "./components/SignupPage.jsx";
+import SettingsPage from "./components/SettingsPage.jsx";
+import LogoBadge from "./components/LogoBadge.jsx";
+
 
 const TOKEN_STORAGE_KEY = "spendwise_auth_token";
 
@@ -29,6 +32,8 @@ function App() {
     const [payDate1, setPayDate1] = useState("");
     const [payDate2, setPayDate2] = useState("");
     const [isLoadingDashboard, setIsLoadingDashboard] = useState(true);
+    const [editingExpenseId, setEditingExpenseId] = useState(null);
+    const [editingIncomeSourceId, setEditingIncomeSourceId] = useState(null);
     const totalIncome = incomeSources.reduce((sum, source) => {
         return sum + Number(source.amount);
     }, 0);
@@ -168,41 +173,90 @@ function App() {
     }, []);
 
 
+    function resetExpenseForm() {
+        setTitle("");
+        setAmount("");
+        setCategory("");
+        setEditingExpenseId(null);
+    }
+
+    function handleExpenseEditStart(expense) {
+        setTitle(expense.title);
+        setAmount(String(expense.amount));
+        setCategory(expense.category);
+        setEditingExpenseId(expense.id);
+        setStatus(`Editing expense: ${expense.title}`);
+    }
+
+    function handleExpenseEditCancel() {
+        resetExpenseForm();
+        setStatus("Edit cancelled.");
+    }
+
+    function resetIncomeSourceForm() {
+        setSourceName("");
+        setIncomeAmount("");
+        setFrequency("weekly");
+        setPayDate1("");
+        setPayDate2("");
+        setEditingIncomeSourceId(null);
+    }
+
+    function handleIncomeSourceEditStart(source) {
+        setSourceName(source.source_name);
+        setIncomeAmount(String(source.amount));
+        setFrequency(source.frequency);
+        setPayDate1(String(source.pay_date_1));
+        setPayDate2(source.pay_date_2 ? String(source.pay_date_2) : "");
+        setEditingIncomeSourceId(source.id);
+        setStatus(`Editing income source: ${source.source_name}`);
+    }
+
+    function handleIncomeSourceEditCancel() {
+        resetIncomeSourceForm();
+        setStatus("Income edit cancelled.");
+    }
 
 
     async function handleExpenseSubmit(event) {
         event.preventDefault();
 
-        const newExpense = {
+        const expensePayload = {
             title,
             amount: parseFloat(amount),
             category,
         };
 
+        const isEditing = editingExpenseId !== null;
+        const endpoint = isEditing
+            ? `${apiBaseUrl}/api/expenses/${editingExpenseId}`
+            : `${apiBaseUrl}/api/expenses`;
+
+        const method = isEditing ? "PUT" : "POST";
+
         try {
-            const response = await fetch(`${apiBaseUrl}/api/expenses`, {
-                method: "POST",
+            const response = await fetch(endpoint, {
+                method,
                 headers: {
                     ...getAuthorizationHeader(),
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(newExpense),
+                body: JSON.stringify(expensePayload),
             });
 
             if (!response.ok) {
                 throw new Error(`Request failed with status ${response.status}`);
             }
-            setTitle("");
-            setAmount("");
-            setCategory("");
-            setStatus("Expense added successfully.");
+            resetExpenseForm();
+            setStatus(isEditing ? "Expense updated successfully." : "Expense added successfully.");
 
             await loadExpenses();
         } catch (error) {
-            console.error("Error adding expense:", error);
-            setStatus("Failed to add expense.");
+            console.error(isEditing ? "Error updating expense:" : "Error adding expense:", error);
+            setStatus(isEditing ? "Failed to update expense." : "Failed to add expense.");
         }
     }
+
 
 
     async function handleExpenseDelete(expenseId) {
@@ -294,7 +348,7 @@ function App() {
     async function handleIncomeSourceSubmit(event) {
         event.preventDefault();
 
-        const newIncomeSource = {
+        const incomeSourcePayload = {
             source_name: sourceName,
             amount: parseFloat(incomeAmount),
             frequency,
@@ -302,31 +356,34 @@ function App() {
             pay_date_2: payDate2 ? parseInt(payDate2) : null,
         };
 
+        const isEditing = editingIncomeSourceId !== null;
+        const endpoint = isEditing
+            ? `${apiBaseUrl}/api/income-sources/${editingIncomeSourceId}`
+            : `${apiBaseUrl}/api/income-sources`;
+
+        const method = isEditing ? "PUT" : "POST";
+
         try {
-            const response = await fetch(`${apiBaseUrl}/api/income-sources`, {
-                method: "POST",
+            const response = await fetch(endpoint, {
+                method,
                 headers: {
                     ...getAuthorizationHeader(),
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(newIncomeSource),
+                body: JSON.stringify(incomeSourcePayload),
             });
 
             if (!response.ok) {
                 throw new Error(`Request failed with status ${response.status}`);
             }
 
-            setSourceName("");
-            setIncomeAmount("");
-            setFrequency("weekly");
-            setPayDate1("");
-            setPayDate2("");
-            setStatus("Income source added successfully.");
+            resetIncomeSourceForm();
+            setStatus(isEditing ? "Income source updated successfully." : "Income source added successfully.");
 
             await loadIncomeSources();
         } catch (error) {
-            console.error("Error adding income source:", error);
-            setStatus("Failed to add income source.");
+            console.error(isEditing ? "Error updating income source:" : "Error adding income source:", error);
+            setStatus(isEditing ? "Failed to update income source." : "Failed to add income source.");
         }
 
     }
@@ -369,7 +426,10 @@ function App() {
                 ) : (
                     <>
                         <div className="app-toolbar">
-                            <p className="welcome-text">Signed in as {currentUser.username}</p>
+                            <div className="toolbar-brand">
+                                <LogoBadge compact />
+                                <p className="welcome-text">Signed in as {currentUser.username}</p>
+                            </div>
                             <button type="button" className="delete-button" onClick={handleLogout}>
                                 Logout
                             </button>
@@ -400,9 +460,11 @@ function App() {
                                 payDate2={payDate2}
                                 setPayDate2={setPayDate2}
                                 incomeSources={incomeSources}
-                                loadIncomeSources={loadIncomeSources}
                                 handleIncomeSourceSubmit={handleIncomeSourceSubmit}
                                 handleIncomeSourceDelete={handleIncomeSourceDelete}
+                                editingIncomeSourceId={editingIncomeSourceId}
+                                handleIncomeSourceEditStart={handleIncomeSourceEditStart}
+                                handleIncomeSourceEditCancel={handleIncomeSourceEditCancel}
                             />
                         )}
 
@@ -416,9 +478,11 @@ function App() {
                                 setCategory={setCategory}
                                 expenses={expenses}
                                 handleExpenseSubmit={handleExpenseSubmit}
-                                loadExpenses={loadExpenses}
                                 handleExpenseDelete={handleExpenseDelete}
-                            />
+                                editingExpenseId={editingExpenseId}
+                                handleExpenseEditStart={handleExpenseEditStart}
+                                handleExpenseEditCancel={handleExpenseEditCancel}
+                            />  
                         )}
 
                         {activePage === "insights" && (
@@ -431,10 +495,7 @@ function App() {
                         )}
 
                         {activePage === "settings" && (
-                            <PlaceholderPage
-                                title="Settings"
-                                description="This page is coming soon. It will hold user preferences and account options."
-                            />
+                            <SettingsPage currentUser={currentUser} handleLogout={handleLogout} />
                         )}
                     </>
                 )}

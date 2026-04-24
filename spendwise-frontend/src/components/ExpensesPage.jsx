@@ -6,9 +6,11 @@ function ExpensesPage({
     category,
     setCategory,
     expenses,
-    loadExpenses,
     handleExpenseSubmit,
-    handleExpenseDelete
+    handleExpenseDelete,
+    editingExpenseId,
+    handleExpenseEditStart,
+    handleExpenseEditCancel
 }) {
     return (
         <section className="panel-section">
@@ -46,25 +48,43 @@ function ExpensesPage({
                 />
 
                 <button type="submit" className="button">
-                    Add Expense
+                    {editingExpenseId ? "Save Changes" : "Add Expense"}
                 </button>
-            </form>
 
-            <button type="button" className="button" onClick={loadExpenses}>
-                Load Expenses
-            </button>
+                {editingExpenseId && (
+                    <button
+                        type="button"
+                        className="button auth-switch-button"
+                        onClick={handleExpenseEditCancel}
+                    >
+                        Cancel Edit
+                    </button>
+                )}
+
+            </form>
 
             <ul className="expenses-list">
                 {expenses.map((expense) => (
                     <li key={expense.id}>
                         {expense.title} - ${expense.amount} ({expense.category})
-                        <button
-                            type="button"
-                            className="delete-button"
-                            onClick={() => handleExpenseDelete(expense.id)}
-                        >
-                            Remove
-                        </button>
+                        <div className="record-actions">
+                            <button
+                                type="button"
+                                className="button auth-switch-button"
+                                onClick={() => handleExpenseEditStart(expense)}
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                type="button"
+                                className="delete-button"
+                                onClick={() => handleExpenseDelete(expense.id)}
+                            >
+                                Remove
+                            </button>
+                        </div>
+
                     </li>
                 ))}
             </ul>

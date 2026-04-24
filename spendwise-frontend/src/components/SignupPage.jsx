@@ -1,4 +1,5 @@
 import { useState } from "react";
+import LogoBadge from "./LogoBadge.jsx";
 
 function SignupPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToLogin, loadAuthenticatedAppData }) {
     const [username, setUsername] = useState("");
@@ -41,6 +42,7 @@ function SignupPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToLogin, loadA
 
     return (
         <section className="panel-section auth-panel">
+            <LogoBadge />
             <h2>Sign Up</h2>
             <p>Create an account to save and manage your own budget data.</p>
 

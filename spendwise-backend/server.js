@@ -252,6 +252,46 @@ app.post("/api/expenses", requireAuth, async (req, res) => {
   }
 });
 
+app.put("/api/expenses/:id", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { title, amount, category } = req.body;
+    const parsedAmount = parseAmount(amount);
+
+    if (!isNonEmptyString(title)) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+
+    if (!isNonEmptyString(category)) {
+      return res.status(400).json({ error: "Category is required" });
+    }
+
+    if (Number.isNaN(parsedAmount)) {
+      return res.status(400).json({ error: "Amount must be a positive number" });
+    }
+
+    const result = await client.query(
+      `
+      UPDATE expenses
+      SET title = $1, amount = $2, category = $3
+      WHERE id = $4 AND user_id = $5
+      RETURNING *;
+      `,
+      [title.trim(), parsedAmount, category.trim(), id, userId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: "Expense not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating expense:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 app.delete("/api/expenses/:id", requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -336,6 +376,72 @@ app.post("/api/income-sources", requireAuth, async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error("Error creating income source:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.put("/api/income-sources/:id", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { source_name, amount, frequency, pay_date_1, pay_date_2 } = req.body;
+    const parsedAmount = parseAmount(amount);
+    const parsedPayDate1 = parsePayDate(pay_date_1);
+    const parsedPayDate2 = parsePayDate(pay_date_2);
+
+    if (!isNonEmptyString(source_name)) {
+      return res.status(400).json({ error: "Source name is required" });
+    }
+
+    if (!isValidFrequency(frequency)) {
+      return res.status(400).json({ error: "Frequency must be one of: weekly, biweekly, monthly" });
+    }
+
+    if (Number.isNaN(parsedAmount)) {
+      return res.status(400).json({ error: "Amount must be a positive number" });
+    }
+
+    if (parsedPayDate1 === null || Number.isNaN(parsedPayDate1)) {
+      return res.status(400).json({
+        error: "pay_date_1 must be an integer between 1 and 31",
+      });
+    }
+
+    if (Number.isNaN(parsedPayDate2)) {
+      return res.status(400).json({
+        error: "pay_date_2 must be an integer between 1 and 31 or be empty",
+      });
+    }
+
+    const result = await client.query(
+      `
+      UPDATE income_sources
+      SET source_name = $1,
+          amount = $2,
+          frequency = $3,
+          pay_date_1 = $4,
+          pay_date_2 = $5
+      WHERE id = $6 AND user_id = $7
+      RETURNING *;
+      `,
+      [
+        source_name.trim(),
+        parsedAmount,
+        frequency.trim(),
+        parsedPayDate1,
+        parsedPayDate2,
+        id,
+        userId,
+      ]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: "Income source not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating income source:", error);
     res.status(500).json({ error: "Server error" });
   }
 });

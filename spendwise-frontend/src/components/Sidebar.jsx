@@ -1,10 +1,11 @@
 
+import LogoBadge from "./LogoBadge.jsx";
 
 function Sidebar({ activePage, setActivePage }) {
     return (
         <aside className="sidebar">
             <div className="brand">
-                <p className="eyebrow">SpendWise</p>
+                <LogoBadge />
                 <h1>Plan with clarity</h1>
             </div>
 

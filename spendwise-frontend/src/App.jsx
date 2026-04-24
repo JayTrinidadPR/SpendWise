@@ -34,6 +34,9 @@ function App() {
     const [isLoadingDashboard, setIsLoadingDashboard] = useState(true);
     const [editingExpenseId, setEditingExpenseId] = useState(null);
     const [editingIncomeSourceId, setEditingIncomeSourceId] = useState(null);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [isSavingExpenses, setIsSavingExpenses] = useState(false);
+    const [isSavingIncome, setIsSavingIncome] = useState(false);
     const totalIncome = incomeSources.reduce((sum, source) => {
         return sum + Number(source.amount);
     }, 0);
@@ -220,6 +223,7 @@ function App() {
 
     async function handleExpenseSubmit(event) {
         event.preventDefault();
+        setIsSavingExpenses(true);
 
         const expensePayload = {
             title,
@@ -254,6 +258,9 @@ function App() {
         } catch (error) {
             console.error(isEditing ? "Error updating expense:" : "Error adding expense:", error);
             setStatus(isEditing ? "Failed to update expense." : "Failed to add expense.");
+        } 
+        finally {
+            setIsSavingExpenses(false);
         }
     }
 
@@ -347,6 +354,7 @@ function App() {
 
     async function handleIncomeSourceSubmit(event) {
         event.preventDefault();
+        setIsSavingIncome(true);
 
         const incomeSourcePayload = {
             source_name: sourceName,
@@ -384,11 +392,14 @@ function App() {
         } catch (error) {
             console.error(isEditing ? "Error updating income source:" : "Error adding income source:", error);
             setStatus(isEditing ? "Failed to update income source." : "Failed to add income source.");
+        } finally {
+            setIsSavingIncome(false);
         }
 
     }
 
     async function handleLogout() {
+        setIsLoggingOut(true);
         try {
             clearAuth();
             setStatus("Logged out successfully.");
@@ -396,6 +407,9 @@ function App() {
         } catch (error) {
             console.error("Error logging out:", error);
             setStatus("Failed to log out.");
+        }
+        finally {
+            setIsLoggingOut(false);
         }
     }
 
@@ -470,6 +484,7 @@ function App() {
                                 editingIncomeSourceId={editingIncomeSourceId}
                                 handleIncomeSourceEditStart={handleIncomeSourceEditStart}
                                 handleIncomeSourceEditCancel={handleIncomeSourceEditCancel}
+                                isSavingIncome={isSavingIncome}
                             />
                         )}
 
@@ -487,6 +502,7 @@ function App() {
                                 editingExpenseId={editingExpenseId}
                                 handleExpenseEditStart={handleExpenseEditStart}
                                 handleExpenseEditCancel={handleExpenseEditCancel}
+                                isSavingExpenses={isSavingExpenses}
                             />  
                         )}
 
@@ -500,7 +516,11 @@ function App() {
                         )}
 
                         {activePage === "settings" && (
-                            <SettingsPage currentUser={currentUser} handleLogout={handleLogout} />
+                            <SettingsPage 
+                            currentUser={currentUser} 
+                            handleLogout={handleLogout} 
+                            isLoggingOut={isLoggingOut}
+                             />
                         )}
                     </>
                 )}

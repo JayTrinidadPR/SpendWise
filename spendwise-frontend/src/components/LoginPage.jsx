@@ -5,10 +5,12 @@ function LoginPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToSignup, loadA
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     async function handleLoginSubmit(event) {
         setErrorMessage("");
         event.preventDefault();
+        setIsLoggingIn(true);
 
         try {
             const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
@@ -35,6 +37,8 @@ function LoginPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToSignup, loadA
             console.error("Error logging in:", error);
             setErrorMessage(error.message || "Failed to log in.");
             setStatus(error.message || "Failed to log in.");
+        } finally {
+            setIsLoggingIn(false);
         }
     }
 
@@ -65,10 +69,12 @@ function LoginPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToSignup, loadA
                     required
                 />
 
-                <button type="submit" className="button">
-                    Log In
+                <button type="submit" className="button" disabled={isLoggingIn}>
+                    {isLoggingIn ? "Logging in..." : "Log In"}
                 </button>
             </form>
+
+            {isLoggingIn && <p className="status">Checking your account...</p>}
 
             <button type="button" className="button auth-switch-button" onClick={onSwitchToSignup}>
                 Create an account

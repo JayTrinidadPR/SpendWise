@@ -14,7 +14,8 @@ function IncomePage({
     handleIncomeSourceDelete,
     editingIncomeSourceId,
     handleIncomeSourceEditStart,
-    handleIncomeSourceEditCancel
+    handleIncomeSourceEditCancel,
+    isSavingIncome
 }) {
     return (
         <section className="panel-section">
@@ -73,11 +74,14 @@ function IncomePage({
                     value={payDate2}
                     onChange={(event) => setPayDate2(event.target.value)}
                 />
-
-
-
-                <button type="submit" className="button">
-                    {editingIncomeSourceId ? "Save Changes" : "Add Income Source"}
+                <button type="submit" className="button" disabled={isSavingIncome}>
+                    {isSavingIncome
+                        ? editingIncomeSourceId
+                            ? "Saving Changes..."
+                            : "Adding Income Source..."
+                        : editingIncomeSourceId
+                        ? "Save Changes"
+                        : "Add Income Source"}
                 </button>
 
                 {editingIncomeSourceId && (
@@ -90,6 +94,15 @@ function IncomePage({
                     </button>
                 )}
             </form>
+
+            {isSavingIncome && (
+                <p className="status">
+                    {editingIncomeSourceId
+                        ? "Saving your income source changes..."
+                        : "Saving your income source..."}
+                </p>
+            )}
+
             <ul className="income-sources-list">
                 {incomeSources.map((source) => (
                     <li key={source.id}>

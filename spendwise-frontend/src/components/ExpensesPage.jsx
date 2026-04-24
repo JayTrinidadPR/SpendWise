@@ -10,7 +10,8 @@ function ExpensesPage({
     handleExpenseDelete,
     editingExpenseId,
     handleExpenseEditStart,
-    handleExpenseEditCancel
+    handleExpenseEditCancel,
+    isSavingExpenses
 }) {
     return (
         <section className="panel-section">
@@ -47,8 +48,14 @@ function ExpensesPage({
                     required
                 />
 
-                <button type="submit" className="button">
-                    {editingExpenseId ? "Save Changes" : "Add Expense"}
+                <button type="submit" className="button" disabled={isSavingExpenses}>
+                    {isSavingExpenses
+                            ? editingExpenseId
+                                ? "Saving Changes..."
+                                : "Adding Expense..."
+                            :editingExpenseId 
+                            ? "Save Changes" 
+                            : "Add Expense"}
                 </button>
 
                 {editingExpenseId && (
@@ -62,6 +69,12 @@ function ExpensesPage({
                 )}
 
             </form>
+
+            {isSavingExpenses && (
+                <p className="status">
+                    {editingExpenseId ? "Saving your expense changes..." : "Saving your expense..."}
+                </p>
+            )}
 
             <ul className="expenses-list">
                 {expenses.map((expense) => (

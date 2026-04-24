@@ -6,10 +6,12 @@ function SignupPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToLogin, loadA
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [isSigningUp, setIsSigningUp] = useState(false);
 
     async function handleSignupSubmit(event) {
         setErrorMessage("");
         event.preventDefault();
+        setIsSigningUp(true);
 
         try {
             const registerResponse = await fetch(`${apiBaseUrl}/api/auth/register`, {
@@ -37,6 +39,8 @@ function SignupPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToLogin, loadA
             console.error("Error signing up:", error);
             setStatus(error.message || "Failed to create account.");
             setErrorMessage(error.message || "Failed to create account.");
+        } finally {
+            setIsSigningUp(false);
         }
     }
 
@@ -76,10 +80,12 @@ function SignupPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToLogin, loadA
                     required
                 />
 
-                <button type="submit" className="button">
-                    Create Account
+                <button type="submit" className="button" disabled={isSigningUp}>
+                    {isSigningUp ? "Creating account..." : "Create Account"}
                 </button>
             </form>
+
+            {isSigningUp && <p className="status">Setting up your account...</p>}
 
             <button type="button" className="button auth-switch-button" onClick={onSwitchToLogin}>
                 Back to login

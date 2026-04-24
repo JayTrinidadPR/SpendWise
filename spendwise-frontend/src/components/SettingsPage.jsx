@@ -1,6 +1,6 @@
 import LogoBadge from "./LogoBadge.jsx";
 
-function SettingsPage({ currentUser, handleLogout }) {
+function SettingsPage({ currentUser, handleLogout, isLoggingOut }) {
     return (
         <section className="panel-section">
             <LogoBadge compact />
@@ -42,9 +42,11 @@ function SettingsPage({ currentUser, handleLogout }) {
                         You are currently signed in to your SpendWise account.
                     </p>
 
-                    <button type="button" className="delete-button" onClick={handleLogout}>
-                        Log Out
+                    <button type="button" className="delete-button" onClick={handleLogout} disabled={isLoggingOut}>
+                        {isLoggingOut ? "Logging out..." : "Log Out"}
                     </button>
+
+                    {isLoggingOut && <p className="status">Ending your session...</p>}
                 </section>
             </div>
         </section>

@@ -420,28 +420,30 @@ function App() {
             )}
             <section className="main-panel">
                 {!currentUser ? (
-                    authMode === "landing" ? (
-                        <LandingPage
-                            onCreateAccount={() => setAuthMode("signup")}
-                            onLogIn={() => setAuthMode("login")}
-                        />
-                    ) : authMode === "login" ? (
-                        <LoginPage
-                            apiBaseUrl={apiBaseUrl}
-                            persistAuth={persistAuth}
-                            setStatus={setStatus}
-                            loadAuthenticatedAppData={loadAuthenticatedAppData}
-                            onSwitchToSignup={() => setAuthMode("signup")}
-                        />
-                    ) : (
-                        <SignupPage
-                            apiBaseUrl={apiBaseUrl}
-                            persistAuth={persistAuth}
-                            loadAuthenticatedAppData={loadAuthenticatedAppData}
-                            setStatus={setStatus}
-                            onSwitchToLogin={() => setAuthMode("login")}
-                        />
-                    )
+                    <div className="page-transition" key={authMode}>
+                        {authMode === "landing" ? (
+                            <LandingPage
+                                onCreateAccount={() => setAuthMode("signup")}
+                                onLogIn={() => setAuthMode("login")}
+                            />
+                        ) : authMode === "login" ? (
+                            <LoginPage
+                                apiBaseUrl={apiBaseUrl}
+                                persistAuth={persistAuth}
+                                setStatus={setStatus}
+                                loadAuthenticatedAppData={loadAuthenticatedAppData}
+                                onSwitchToSignup={() => setAuthMode("signup")}
+                            />
+                        ) : (
+                            <SignupPage
+                                apiBaseUrl={apiBaseUrl}
+                                persistAuth={persistAuth}
+                                loadAuthenticatedAppData={loadAuthenticatedAppData}
+                                setStatus={setStatus}
+                                onSwitchToLogin={() => setAuthMode("login")}
+                            />
+                        )}
+                    </div>
                 ) : (
                     <>
                         <div className="app-toolbar">
@@ -449,79 +451,86 @@ function App() {
                                 <LogoBadge compact />
                                 <p className="welcome-text">Signed in as {currentUser.username}</p>
                             </div>
-                            <button type="button" className="delete-button" onClick={handleLogout}>
-                                Logout
+                            <button
+                                type="button"
+                                className="delete-button"
+                                onClick={handleLogout}
+                                disabled={isLoggingOut}
+                            >
+                                {isLoggingOut ? "Logging out..." : "Logout"}
                             </button>
                         </div>
-                        {activePage === "dashboard" && (
-                            <DashboardPage
-                                totalIncome={totalIncome}
-                                totalExpenses={totalExpenses}
-                                remainingBalance={remainingBalance}
-                                recentExpenses={recentExpenses}
-                                recentIncomeSources={recentIncomeSources}
-                                expenseCategoryBreakdown={expenseCategoryBreakdown}
-                                topExpenseCategory={topExpenseCategory}
-                                isLoadingDashboard={isLoadingDashboard}
-                            />
-                        )}
+                        <div className="page-transition" key={activePage}>
+                            {activePage === "dashboard" && (
+                                <DashboardPage
+                                    totalIncome={totalIncome}
+                                    totalExpenses={totalExpenses}
+                                    remainingBalance={remainingBalance}
+                                    recentExpenses={recentExpenses}
+                                    recentIncomeSources={recentIncomeSources}
+                                    expenseCategoryBreakdown={expenseCategoryBreakdown}
+                                    topExpenseCategory={topExpenseCategory}
+                                    isLoadingDashboard={isLoadingDashboard}
+                                />
+                            )}
 
-                        {activePage === "income" && (
-                            <IncomePage
-                                sourceName={sourceName}
-                                setSourceName={setSourceName}
-                                incomeAmount={incomeAmount}
-                                setIncomeAmount={setIncomeAmount}
-                                frequency={frequency}
-                                setFrequency={setFrequency}
-                                payDate1={payDate1}
-                                setPayDate1={setPayDate1}
-                                payDate2={payDate2}
-                                setPayDate2={setPayDate2}
-                                incomeSources={incomeSources}
-                                handleIncomeSourceSubmit={handleIncomeSourceSubmit}
-                                handleIncomeSourceDelete={handleIncomeSourceDelete}
-                                editingIncomeSourceId={editingIncomeSourceId}
-                                handleIncomeSourceEditStart={handleIncomeSourceEditStart}
-                                handleIncomeSourceEditCancel={handleIncomeSourceEditCancel}
-                                isSavingIncome={isSavingIncome}
-                            />
-                        )}
+                            {activePage === "income" && (
+                                <IncomePage
+                                    sourceName={sourceName}
+                                    setSourceName={setSourceName}
+                                    incomeAmount={incomeAmount}
+                                    setIncomeAmount={setIncomeAmount}
+                                    frequency={frequency}
+                                    setFrequency={setFrequency}
+                                    payDate1={payDate1}
+                                    setPayDate1={setPayDate1}
+                                    payDate2={payDate2}
+                                    setPayDate2={setPayDate2}
+                                    incomeSources={incomeSources}
+                                    handleIncomeSourceSubmit={handleIncomeSourceSubmit}
+                                    handleIncomeSourceDelete={handleIncomeSourceDelete}
+                                    editingIncomeSourceId={editingIncomeSourceId}
+                                    handleIncomeSourceEditStart={handleIncomeSourceEditStart}
+                                    handleIncomeSourceEditCancel={handleIncomeSourceEditCancel}
+                                    isSavingIncome={isSavingIncome}
+                                />
+                            )}
 
-                        {activePage === "expenses" && (
-                            <ExpensesPage
-                                title={title}
-                                setTitle={setTitle}
-                                amount={amount}
-                                setAmount={setAmount}
-                                category={category}
-                                setCategory={setCategory}
-                                expenses={expenses}
-                                handleExpenseSubmit={handleExpenseSubmit}
-                                handleExpenseDelete={handleExpenseDelete}
-                                editingExpenseId={editingExpenseId}
-                                handleExpenseEditStart={handleExpenseEditStart}
-                                handleExpenseEditCancel={handleExpenseEditCancel}
-                                isSavingExpenses={isSavingExpenses}
-                            />  
-                        )}
+                            {activePage === "expenses" && (
+                                <ExpensesPage
+                                    title={title}
+                                    setTitle={setTitle}
+                                    amount={amount}
+                                    setAmount={setAmount}
+                                    category={category}
+                                    setCategory={setCategory}
+                                    expenses={expenses}
+                                    handleExpenseSubmit={handleExpenseSubmit}
+                                    handleExpenseDelete={handleExpenseDelete}
+                                    editingExpenseId={editingExpenseId}
+                                    handleExpenseEditStart={handleExpenseEditStart}
+                                    handleExpenseEditCancel={handleExpenseEditCancel}
+                                    isSavingExpenses={isSavingExpenses}
+                                />
+                            )}
 
-                        {activePage === "insights" && (
-                            <InsightsPage
-                                topExpenseCategory={topExpenseCategory}
-                                totalExpenseCount={totalExpenseCount}
-                                averageExpenseAmount={averageExpenseAmount}
-                                savingsRate={savingsRate}
-                            />
-                        )}
+                            {activePage === "insights" && (
+                                <InsightsPage
+                                    topExpenseCategory={topExpenseCategory}
+                                    totalExpenseCount={totalExpenseCount}
+                                    averageExpenseAmount={averageExpenseAmount}
+                                    savingsRate={savingsRate}
+                                />
+                            )}
 
-                        {activePage === "settings" && (
-                            <SettingsPage 
-                            currentUser={currentUser} 
-                            handleLogout={handleLogout} 
-                            isLoggingOut={isLoggingOut}
-                             />
-                        )}
+                            {activePage === "settings" && (
+                                <SettingsPage
+                                    currentUser={currentUser}
+                                    handleLogout={handleLogout}
+                                    isLoggingOut={isLoggingOut}
+                                />
+                            )}
+                        </div>
                     </>
                 )}
             </section>

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "db:seed": "node db/seed.js"
+    "db:seed": "node db/seed.js",
+    "db:seed-demo": "node db/seedDemoData.js"
   },
   "repository": {
     "type": "git",

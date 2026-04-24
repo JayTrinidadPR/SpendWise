@@ -1,7 +1,14 @@
 import { useState } from "react";
 import LogoBadge from "./LogoBadge.jsx";
 
-function LoginPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToSignup, loadAuthenticatedAppData }) {
+function LoginPage({
+    apiBaseUrl,
+    persistAuth,
+    setStatus,
+    onBackToLanding,
+    onSwitchToSignup,
+    loadAuthenticatedAppData
+}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -78,6 +85,10 @@ function LoginPage({ apiBaseUrl, persistAuth, setStatus, onSwitchToSignup, loadA
 
             <button type="button" className="button auth-switch-button" onClick={onSwitchToSignup}>
                 Create an account
+            </button>
+
+            <button type="button" className="button auth-switch-button" onClick={onBackToLanding}>
+                Back to landing page
             </button>
         </section>
     );

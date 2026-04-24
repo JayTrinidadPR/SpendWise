@@ -12,7 +12,7 @@ async function seedDatabase() {
         await client.query("DROP TABLE IF EXISTS expenses;");
         await client.query("DROP TABLE IF EXISTS users;");
 
-        const alicePasswordHash = await bcrypt.hash("password123", 10);
+        const demoPasswordHash = await bcrypt.hash("demo123", 10);
         const bobPasswordHash = await bcrypt.hash("password123", 10);
 
         console.log("Dropped old tables.");
@@ -26,9 +26,9 @@ async function seedDatabase() {
             ($1, $2, $3),
             ($4, $5, $6);
         `, [
-            "alice",
-            "alice@example.com",
-            alicePasswordHash,
+            "demo",
+            "demo@spendwise.app",
+            demoPasswordHash,
             "bob",
             "bob@example.com",
             bobPasswordHash,
@@ -39,15 +39,18 @@ async function seedDatabase() {
             INSERT INTO expenses(user_id, title, amount, category)
         VALUES
             (1, 'Rent', 1200.00, 'Housing'),
-            (1, 'Groceries', 84.50, 'Food'),
-            (1, 'Gas', 45.00, 'Transportation');
+            (1, 'Groceries', 180.00, 'Food'),
+            (1, 'Utilities', 140.00, 'Bills'),
+            (1, 'Gas', 110.00, 'Transportation'),
+            (1, 'Dining Out', 220.00, 'Food'),
+            (1, 'Entertainment', 150.00, 'Lifestyle');
         `);
 
         await client.query(`
             INSERT INTO income_sources(user_id, source_name, amount, frequency, pay_date_1, pay_date_2)
         VALUES
-            (1, 'Full-time Job', 1500.00, 'biweekly', 15, 30),
-            (1, 'Freelance Work', 300.00, 'monthly', 1, NULL);
+            (1, 'Full-time Job', 3000.00, 'monthly', 1, NULL),
+            (1, 'Freelance Work', 650.00, 'monthly', 15, NULL);
         `);
 
         console.log("Database seeded with initial data.");

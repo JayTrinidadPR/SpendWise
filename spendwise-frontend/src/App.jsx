@@ -7,7 +7,6 @@ import InsightsPage from "./components/InsightsPage.jsx";
 import LoginPage from "./components/LoginPage.jsx";
 import SignupPage from "./components/SignupPage.jsx";
 import SettingsPage from "./components/SettingsPage.jsx";
-import LogoBadge from "./components/LogoBadge.jsx";
 import LandingPage from "./components/LandingPage.jsx";
 
 
@@ -422,18 +421,19 @@ function App() {
                 {!currentUser ? (
                     <div className="page-transition" key={authMode}>
                         {authMode === "landing" ? (
-                            <LandingPage
-                                onCreateAccount={() => setAuthMode("signup")}
-                                onLogIn={() => setAuthMode("login")}
-                            />
+                        <LandingPage
+                            onCreateAccount={() => setAuthMode("signup")}
+                            onLogIn={() => setAuthMode("login")}
+                        />
                         ) : authMode === "login" ? (
-                            <LoginPage
-                                apiBaseUrl={apiBaseUrl}
-                                persistAuth={persistAuth}
-                                setStatus={setStatus}
-                                loadAuthenticatedAppData={loadAuthenticatedAppData}
-                                onSwitchToSignup={() => setAuthMode("signup")}
-                            />
+                        <LoginPage
+                            apiBaseUrl={apiBaseUrl}
+                            persistAuth={persistAuth}
+                            setStatus={setStatus}
+                            loadAuthenticatedAppData={loadAuthenticatedAppData}
+                            onBackToLanding={() => setAuthMode("landing")}
+                            onSwitchToSignup={() => setAuthMode("signup")}
+                        />
                         ) : (
                             <SignupPage
                                 apiBaseUrl={apiBaseUrl}
@@ -447,10 +447,7 @@ function App() {
                 ) : (
                     <>
                         <div className="app-toolbar">
-                            <div className="toolbar-brand">
-                                <LogoBadge compact />
-                                <p className="welcome-text">Signed in as {currentUser.username}</p>
-                            </div>
+                            <p className="welcome-text">Signed in as {currentUser.username}</p>
                             <button
                                 type="button"
                                 className="delete-button"

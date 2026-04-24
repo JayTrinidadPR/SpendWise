@@ -31,6 +31,29 @@ function LandingPage({ onCreateAccount, onLogIn }) {
                             Log in
                         </button>
                     </div>
+
+                    <section className="landing-demo-card">
+                        <div>
+                            <p className="landing-demo-label">Demo Account</p>
+                            <h2>Try the full app before signing up.</h2>
+                            <p className="landing-demo-copy">
+                                Use the preloaded demo account with sample income, expenses, and
+                                insights already in place.
+                            </p>
+                        </div>
+
+                        <dl className="landing-demo-credentials">
+                            <div>
+                                <dt>Email</dt>
+                                <dd>demo@spendwise.app</dd>
+                            </div>
+                            <div>
+                                <dt>Password</dt>
+                                <dd>demo1234</dd>
+                            </div>
+                        </dl>
+
+                    </section>
                 </section>
 
                 <section className="landing-preview">

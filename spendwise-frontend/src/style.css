@@ -257,6 +257,252 @@ select {
     margin-top: 32px;
 }
 
+.dashboard-layout {
+    display: grid;
+    gap: 28px;
+}
+
+.dashboard-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(240px, 0.8fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.dashboard-hero-copy,
+.dashboard-status {
+    padding: 28px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.dashboard-hero-copy {
+    background:
+        radial-gradient(circle at top right, rgba(209, 228, 244, 0.55), transparent 35%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(248, 241, 235, 0.88));
+}
+
+.dashboard-kicker {
+    margin: 0 0 12px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #4e7ea6;
+}
+
+.dashboard-hero-copy h2 {
+    margin-bottom: 10px;
+    font-size: clamp(2.6rem, 5vw, 4rem);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+}
+
+.dashboard-hero-copy p:last-child {
+    max-width: 42rem;
+    margin-bottom: 0;
+    font-size: 1.05rem;
+}
+
+.dashboard-status {
+    background: linear-gradient(160deg, rgba(209, 228, 244, 0.82), rgba(234, 244, 238, 0.92));
+}
+
+.dashboard-status h3 {
+    margin: 0 0 10px;
+    font-size: 2rem;
+    font-family: "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+}
+
+.dashboard-status p:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard-status-stable .dashboard-kicker {
+    color: #2f6b4f;
+}
+
+.dashboard-status-watch .dashboard-kicker {
+    color: #9b7a25;
+}
+
+.dashboard-status-alert .dashboard-kicker {
+    color: #a4524f;
+}
+
+.dashboard-summary-grid {
+    margin-top: 0;
+}
+
+.dashboard-metric-card {
+    min-height: 132px;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-metric-card::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(63, 175, 152, 0.95);
+    box-shadow: 0 0 0 10px rgba(63, 175, 152, 0.12);
+}
+
+.dashboard-overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.dashboard-chart-card {
+    background:
+        radial-gradient(circle at top right, rgba(209, 228, 244, 0.45), transparent 32%),
+        rgba(255, 255, 255, 0.88);
+}
+
+.dashboard-chart-layout {
+    display: grid;
+    grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: center;
+    margin-top: 24px;
+}
+
+.dashboard-donut-chart {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    box-shadow: inset 0 0 0 1px rgba(117, 92, 72, 0.08);
+}
+
+.dashboard-donut-center {
+    width: 56%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 8px 24px rgba(120, 92, 72, 0.08);
+}
+
+.dashboard-donut-center span {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.dashboard-donut-center strong {
+    font-size: 1.35rem;
+    color: var(--text);
+}
+
+.dashboard-chart-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+}
+
+.dashboard-chart-legend li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.dashboard-chart-legend strong,
+.dashboard-chart-legend span {
+    display: block;
+}
+
+.dashboard-chart-legend strong {
+    margin-bottom: 2px;
+}
+
+.dashboard-legend-swatch {
+    width: 14px;
+    height: 14px;
+    margin-top: 5px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+.dashboard-insight-stack {
+    display: grid;
+    gap: 20px;
+}
+
+.dashboard-top-card {
+    background:
+        radial-gradient(circle at top right, rgba(198, 235, 214, 0.35), transparent 28%),
+        rgba(255, 255, 255, 0.86);
+}
+
+.dashboard-top-content {
+    margin-top: 18px;
+}
+
+.dashboard-top-list {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+}
+
+.dashboard-top-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.dashboard-top-bar {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(127, 179, 213, 0.14);
+    overflow: hidden;
+}
+
+.dashboard-top-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(127, 179, 213, 0.88), rgba(122, 205, 175, 0.92));
+}
+
+.dashboard-activity-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.dashboard-mini-heading {
+    margin: 0 0 10px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.dashboard-compact-list {
+    gap: 8px;
+}
+
+.dashboard-compact-list li {
+    padding: 10px 0;
+}
+
 .dashboard-subsection h3 {
     margin-top: 0;
     margin-bottom: 16px;
@@ -892,6 +1138,35 @@ select {
         margin-top: 22px;
     }
 
+    .dashboard-hero,
+    .dashboard-overview-grid,
+    .dashboard-chart-layout,
+    .dashboard-activity-columns {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-layout {
+        gap: 20px;
+    }
+
+    .dashboard-hero-copy,
+    .dashboard-status {
+        padding: 22px;
+    }
+
+    .dashboard-hero-copy p:last-child {
+        font-size: 1rem;
+    }
+
+    .dashboard-chart-layout {
+        gap: 18px;
+    }
+
+    .dashboard-donut-chart {
+        max-width: 260px;
+        margin: 0 auto;
+    }
+
     .dashboard-subsection,
     .summary-card,
     .settings-hero,
@@ -1050,6 +1325,10 @@ select {
         font-size: 1.5rem;
     }
 
+    .dashboard-hero-copy h2 {
+        font-size: clamp(2.1rem, 12vw, 3rem);
+    }
+
     .summary-card,
     .dashboard-subsection,
     .settings-hero,
@@ -1068,6 +1347,11 @@ select {
     .summary-card h3,
     .landing-preview-amount {
         font-size: 1.9rem;
+    }
+
+    .dashboard-status h3,
+    .insight-title {
+        font-size: 1.6rem;
     }
 
     .expenses-list li,

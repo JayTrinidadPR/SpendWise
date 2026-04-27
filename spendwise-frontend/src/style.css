@@ -503,6 +503,209 @@ select {
     padding: 10px 0;
 }
 
+.workspace-layout {
+    display: grid;
+    gap: 26px;
+}
+
+.workspace-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.95fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.workspace-hero-copy,
+.workspace-stats {
+    padding: 26px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.workspace-hero-expenses .workspace-hero-copy {
+    background:
+        radial-gradient(circle at top right, rgba(248, 210, 205, 0.44), transparent 34%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(252, 240, 236, 0.88));
+}
+
+.workspace-hero-income .workspace-hero-copy {
+    background:
+        radial-gradient(circle at top right, rgba(198, 235, 214, 0.46), transparent 34%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(239, 248, 242, 0.88));
+}
+
+.workspace-kicker {
+    margin: 0 0 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #4e7ea6;
+}
+
+.workspace-hero-copy h2 {
+    margin: 0 0 10px;
+    font-size: clamp(2.15rem, 4vw, 3.3rem);
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    font-family: "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    color: #21354c;
+}
+
+.workspace-hero-copy p:last-child {
+    margin-bottom: 0;
+    max-width: 38rem;
+    font-size: 1rem;
+}
+
+.workspace-stats {
+    display: grid;
+    gap: 14px;
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(242, 236, 229, 0.88));
+}
+
+.workspace-stat-card {
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(117, 92, 72, 0.08);
+}
+
+.workspace-stat-card span {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.workspace-stat-card strong {
+    font-size: 1.5rem;
+    color: var(--text);
+}
+
+.workspace-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.05fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.workspace-form-card,
+.workspace-list-card {
+    padding: 24px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.workspace-form-card {
+    background:
+        radial-gradient(circle at top right, rgba(127, 179, 213, 0.2), transparent 32%),
+        rgba(255, 255, 255, 0.9);
+}
+
+.workspace-list-card {
+    background:
+        radial-gradient(circle at top right, rgba(209, 228, 244, 0.24), transparent 28%),
+        rgba(255, 255, 255, 0.86);
+}
+
+.workspace-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 6px;
+}
+
+.workspace-section-header h3 {
+    margin: 0;
+    font-size: 1.55rem;
+    font-family: "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+}
+
+.workspace-badge,
+.workspace-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #214867;
+    background: rgba(127, 179, 213, 0.14);
+    white-space: nowrap;
+}
+
+.workspace-inline-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.workspace-inline-fields div {
+    display: grid;
+    gap: 12px;
+}
+
+.workspace-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.workspace-record-list {
+    margin-top: 18px;
+}
+
+.workspace-record-list li {
+    align-items: stretch;
+    padding: 18px;
+    background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.95), transparent 42%),
+        rgba(255, 255, 255, 0.9);
+}
+
+.workspace-record-copy {
+    display: grid;
+    gap: 6px;
+}
+
+.workspace-record-copy strong {
+    font-size: 1.08rem;
+    color: var(--text);
+}
+
+.workspace-record-copy span {
+    color: var(--muted);
+}
+
+.workspace-record-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.workspace-record-amount {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #214867;
+}
+
+.workspace-empty-state {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px dashed rgba(117, 92, 72, 0.18);
+}
+
 .dashboard-subsection h3 {
     margin-top: 0;
     margin-bottom: 16px;
@@ -1141,7 +1344,9 @@ select {
     .dashboard-hero,
     .dashboard-overview-grid,
     .dashboard-chart-layout,
-    .dashboard-activity-columns {
+    .dashboard-activity-columns,
+    .workspace-hero,
+    .workspace-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1171,8 +1376,30 @@ select {
     .summary-card,
     .settings-hero,
     .landing-demo-card,
-    .landing-preview-card {
+    .landing-preview-card,
+    .workspace-form-card,
+    .workspace-list-card,
+    .workspace-hero-copy,
+    .workspace-stats {
         padding: 18px;
+    }
+
+    .workspace-layout {
+        gap: 18px;
+    }
+
+    .workspace-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .workspace-inline-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .workspace-record-side {
+        width: 100%;
+        align-items: flex-start;
     }
 
     .dashboard-list li,
@@ -1336,7 +1563,11 @@ select {
     .landing-hero,
     .landing-preview-main,
     .landing-preview-card,
-    .landing-demo-card {
+    .landing-demo-card,
+    .workspace-form-card,
+    .workspace-list-card,
+    .workspace-hero-copy,
+    .workspace-stats {
         padding: 16px;
     }
 
@@ -1354,6 +1585,10 @@ select {
         font-size: 1.6rem;
     }
 
+    .workspace-hero-copy h2 {
+        font-size: clamp(1.95rem, 11vw, 2.7rem);
+    }
+
     .expenses-list li,
     .income-sources-list li {
         padding: 12px 14px;
@@ -1361,6 +1596,11 @@ select {
 
     .record-actions {
         grid-template-columns: 1fr;
+    }
+
+    .workspace-stat-card strong,
+    .workspace-record-amount {
+        font-size: 1.05rem;
     }
 
     .landing-preview-bars {

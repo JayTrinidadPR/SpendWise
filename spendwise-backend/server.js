@@ -145,7 +145,7 @@ app.patch("/api/auth/password", requireAuth, async (req, res) => {
 
     const result = await client.query(
       `
-      SELECT id, password_hash
+      SELECT id, email, username, password_hash
       FROM users
       WHERE id = $1;
       `,
@@ -156,6 +156,15 @@ app.patch("/api/auth/password", requireAuth, async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
+    }
+
+    if (
+      user.email?.toLowerCase() === "demo@spendwise.app" ||
+      user.username?.toLowerCase() === "demo"
+    ) {
+      return res.status(403).json({
+        error: "The demo account password cannot be changed.",
+      });
     }
 
     const passwordMatches = await bcrypt.compare(currentPassword, user.password_hash);

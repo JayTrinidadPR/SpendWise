@@ -1,4 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+function formatFrequencyLabel(value) {
+    if (value === "biweekly") return "Biweekly";
+    if (value === "weekly") return "Weekly";
+    if (value === "monthly") return "Monthly";
+
+    return value;
+}
 
 function IncomePage({
     sourceName,
@@ -23,6 +31,12 @@ function IncomePage({
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
     const totalIncomeAmount = incomeSources.reduce((sum, source) => sum + Number(source.amount), 0);
     const recurringCount = incomeSources.filter((source) => source.frequency !== "monthly").length;
+
+    useEffect(() => {
+        if (editingIncomeSourceId) {
+            setIsFormOpen(true);
+        }
+    }, [editingIncomeSourceId]);
 
     return (
         <section className="panel-section workspace-layout">
@@ -200,11 +214,23 @@ function IncomePage({
                                 {incomeSources.map((source) => (
                                     <li key={source.id}>
                                         <div className="workspace-record-copy">
-                                            <strong>{source.source_name}</strong>
-                                            <span>
-                                                {source.frequency} · Pay date {source.pay_date_1}
-                                                {source.pay_date_2 ? ` & ${source.pay_date_2}` : ""}
-                                            </span>
+                                            <div className="workspace-record-header">
+                                                <strong>{source.source_name}</strong>
+                                                <span className="workspace-record-tag">
+                                                    {formatFrequencyLabel(source.frequency)}
+                                                </span>
+                                            </div>
+
+                                            <div className="workspace-schedule-meta">
+                                                <span className="workspace-schedule-pill">
+                                                    Pay date {source.pay_date_1}
+                                                </span>
+                                                {source.pay_date_2 && (
+                                                    <span className="workspace-schedule-pill">
+                                                        Pay date {source.pay_date_2}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="workspace-record-side">

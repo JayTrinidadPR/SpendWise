@@ -8,6 +8,9 @@ function SettingsPage({
     handlePasswordUpdate,
     isUpdatingPassword
 }) {
+    const isDemoAccount =
+        currentUser.email?.toLowerCase() === "demo@spendwise.app" ||
+        currentUser.username?.toLowerCase() === "demo";
     const [isPasswordPanelOpen, setIsPasswordPanelOpen] = useState(false);
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -98,20 +101,24 @@ function SettingsPage({
                         <p className="workspace-kicker">Security</p>
                         <h3>Update Password</h3>
                     </div>
-                    <button
-                        type="button"
-                        className="button auth-switch-button settings-password-toggle"
-                        onClick={() => setIsPasswordPanelOpen((isOpen) => !isOpen)}
-                    >
-                        {isPasswordPanelOpen ? "Hide Form" : "Change Password"}
-                    </button>
+                    {!isDemoAccount && (
+                        <button
+                            type="button"
+                            className="button auth-switch-button settings-password-toggle"
+                            onClick={() => setIsPasswordPanelOpen((isOpen) => !isOpen)}
+                        >
+                            {isPasswordPanelOpen ? "Hide Form" : "Change Password"}
+                        </button>
+                    )}
                 </div>
 
                 <p className="settings-session-text">
-                    Change your password here to keep your account secure.
+                    {isDemoAccount
+                        ? "Password changes are disabled for the demo account so the preview login stays stable for everyone."
+                        : "Change your password here to keep your account secure."}
                 </p>
 
-                {isPasswordPanelOpen && (
+                {!isDemoAccount && isPasswordPanelOpen && (
                     <>
                         <form onSubmit={onPasswordSubmit} className="settings-password-form">
                             <label htmlFor="currentPasswordInput">Current Password</label>

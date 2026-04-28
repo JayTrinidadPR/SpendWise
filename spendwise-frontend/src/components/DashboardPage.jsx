@@ -93,6 +93,13 @@ function DashboardPage({
                 ? "You still have a positive balance, but expenses are starting to crowd your budget."
                 : "Spending is ahead of income right now, so this month needs a reset plan.";
 
+    const balanceSummary =
+        statusTone === "stable"
+            ? "Healthy cushion"
+            : statusTone === "watch"
+                ? "Positive, but tighter"
+                : "Spending ahead";
+
     const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
     const [isActivityOpen, setIsActivityOpen] = useState(false);
     const [activeChartSegment, setActiveChartSegment] = useState(null);
@@ -102,7 +109,7 @@ function DashboardPage({
 
     return (
         <section className="panel-section dashboard-layout">
-            <div className="dashboard-hero">
+            <div className="dashboard-hero dashboard-hero-section">
                 <div className="dashboard-hero-copy">
                     <p className="dashboard-kicker">Dashboard</p>
                     <h2>Budget overview</h2>
@@ -120,30 +127,40 @@ function DashboardPage({
             </div>
 
             {isLoadingDashboard && (
-                <p className="loading-message">
+                <p className="loading-message dashboard-loading-row">
                     Loading your budget data. Render may take a few seconds to wake up.
                 </p>
             )}
 
-            <div className="summary-grid dashboard-summary-grid dashboard-summary-strip">
+            <div className="summary-grid dashboard-summary-grid dashboard-summary-strip dashboard-summary-section">
                 <article className="summary-card income-card dashboard-metric-card">
-                    <p className="summary-label">Total Income</p>
+                    <p className="summary-label">
+                        <span className="summary-label-full">Total Income</span>
+                        <span className="summary-label-short">Income</span>
+                    </p>
                     <h3>${totalIncome.toFixed(2)}</h3>
                 </article>
 
                 <article className="summary-card expense-card dashboard-metric-card">
-                    <p className="summary-label">Total Expenses</p>
+                    <p className="summary-label">
+                        <span className="summary-label-full">Total Expenses</span>
+                        <span className="summary-label-short">Expenses</span>
+                    </p>
                     <h3>${totalExpenses.toFixed(2)}</h3>
                 </article>
 
                 <article className="summary-card balance-card dashboard-metric-card">
-                    <p className="summary-label">Remaining Balance</p>
+                    <p className="summary-label">
+                        <span className="summary-label-full">Remaining Balance</span>
+                        <span className="summary-label-short">Balance</span>
+                    </p>
                     <h3>${remainingBalance.toFixed(2)}</h3>
+                    <p className="dashboard-metric-note">{balanceSummary}</p>
                 </article>
             </div>
 
-            <div className="dashboard-overview-grid">
-                <section className="dashboard-subsection dashboard-chart-card">
+            <div className="dashboard-overview-grid dashboard-overview-section">
+                <section className="dashboard-subsection dashboard-chart-card dashboard-chart-section">
                     <div className="workspace-section-header workspace-section-header-collapsible">
                         <div>
                             <h3>Expense Breakdown</h3>
@@ -264,7 +281,7 @@ function DashboardPage({
                         )}
                     </section>
 
-                    <section className="dashboard-subsection">
+                    <section className="dashboard-subsection dashboard-activity-section">
                         <div className="workspace-section-header workspace-section-header-collapsible">
                             <div>
                                 <h3>Recent Activity</h3>

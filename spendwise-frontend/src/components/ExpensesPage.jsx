@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function ExpensesPage({
     title,
@@ -25,6 +25,14 @@ function ExpensesPage({
             return totals;
         }, {})
     ).sort((a, b) => b[1] - a[1])[0] || null;
+
+    const formatCategoryLabel = (value) => value?.trim() || "Uncategorized";
+
+    useEffect(() => {
+        if (editingExpenseId) {
+            setIsFormOpen(true);
+        }
+    }, [editingExpenseId]);
 
     return (
         <section className="panel-section workspace-layout">
@@ -173,8 +181,18 @@ function ExpensesPage({
                                 {expenses.map((expense) => (
                                     <li key={expense.id}>
                                         <div className="workspace-record-copy">
-                                            <strong>{expense.title}</strong>
-                                            <span>{expense.category}</span>
+                                            <div className="workspace-record-header">
+                                                <strong>{expense.title}</strong>
+                                                <span className="workspace-record-tag workspace-record-tag-expense">
+                                                    {formatCategoryLabel(expense.category)}
+                                                </span>
+                                            </div>
+
+                                            <div className="workspace-schedule-meta">
+                                                <span className="workspace-schedule-pill workspace-schedule-pill-expense">
+                                                    Spending entry
+                                                </span>
+                                            </div>
                                         </div>
 
                                         <div className="workspace-record-side">

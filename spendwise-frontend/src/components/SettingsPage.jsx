@@ -1,6 +1,48 @@
 import LogoBadge from "./LogoBadge.jsx";
+import { useState } from "react";
 
-function SettingsPage({ currentUser, handleLogout, isLoggingOut }) {
+function SettingsPage({
+    currentUser,
+    handleLogout,
+    isLoggingOut,
+    handlePasswordUpdate,
+    isUpdatingPassword
+}) {
+    const [isPasswordPanelOpen, setIsPasswordPanelOpen] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [passwordMessage, setPasswordMessage] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+
+    async function onPasswordSubmit(event) {
+        event.preventDefault();
+        setPasswordMessage("");
+        setPasswordError("");
+
+        if (newPassword.length < 8) {
+            setPasswordError("New password must be at least 8 characters.");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setPasswordError("New password and confirmation do not match.");
+            return;
+        }
+
+        const result = await handlePasswordUpdate({ currentPassword, newPassword });
+
+        if (!result.success) {
+            setPasswordError(result.error || "Failed to update password.");
+            return;
+        }
+
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setPasswordMessage("Password updated successfully.");
+    }
+
     return (
         <section className="panel-section">
             <LogoBadge compact />
@@ -49,6 +91,70 @@ function SettingsPage({ currentUser, handleLogout, isLoggingOut }) {
                     {isLoggingOut && <p className="status">Ending your session...</p>}
                 </section>
             </div>
+
+            <section className="dashboard-subsection settings-password-section">
+                <div className="settings-password-header">
+                    <div>
+                        <p className="workspace-kicker">Security</p>
+                        <h3>Update Password</h3>
+                    </div>
+                    <button
+                        type="button"
+                        className="button auth-switch-button settings-password-toggle"
+                        onClick={() => setIsPasswordPanelOpen((isOpen) => !isOpen)}
+                    >
+                        {isPasswordPanelOpen ? "Hide Form" : "Change Password"}
+                    </button>
+                </div>
+
+                <p className="settings-session-text">
+                    Change your password here to keep your account secure.
+                </p>
+
+                {isPasswordPanelOpen && (
+                    <>
+                        <form onSubmit={onPasswordSubmit} className="settings-password-form">
+                            <label htmlFor="currentPasswordInput">Current Password</label>
+                            <input
+                                id="currentPasswordInput"
+                                type="password"
+                                value={currentPassword}
+                                onChange={(event) => setCurrentPassword(event.target.value)}
+                                required
+                            />
+
+                            <label htmlFor="newPasswordInput">New Password</label>
+                            <input
+                                id="newPasswordInput"
+                                type="password"
+                                value={newPassword}
+                                onChange={(event) => setNewPassword(event.target.value)}
+                                minLength={8}
+                                required
+                            />
+
+                            <label htmlFor="confirmPasswordInput">Confirm New Password</label>
+                            <input
+                                id="confirmPasswordInput"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(event) => setConfirmPassword(event.target.value)}
+                                minLength={8}
+                                required
+                            />
+
+                            <button type="submit" className="button" disabled={isUpdatingPassword}>
+                                {isUpdatingPassword ? "Updating password..." : "Update Password"}
+                            </button>
+                        </form>
+
+                        {passwordError && <p className="auth-error settings-password-feedback">{passwordError}</p>}
+                        {passwordMessage && (
+                            <p className="loading-message settings-password-feedback">{passwordMessage}</p>
+                        )}
+                    </>
+                )}
+            </section>
         </section>
     );
 }

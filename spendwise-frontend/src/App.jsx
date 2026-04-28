@@ -36,6 +36,8 @@ function App() {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isSavingExpenses, setIsSavingExpenses] = useState(false);
     const [isSavingIncome, setIsSavingIncome] = useState(false);
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
     const totalIncome = incomeSources.reduce((sum, source) => {
         return sum + Number(source.amount);
     }, 0);
@@ -217,6 +219,11 @@ function App() {
     function handleIncomeSourceEditCancel() {
         resetIncomeSourceForm();
         setStatus("Income edit cancelled.");
+    }
+
+    function handlePageChange(nextPage) {
+        setActivePage(nextPage);
+        setIsMobileNavOpen(false);
     }
 
 
@@ -403,6 +410,7 @@ function App() {
             clearAuth();
             setStatus("Logged out successfully.");
             setAuthMode("landing");
+            setIsMobileNavOpen(false);
         } catch (error) {
             console.error("Error logging out:", error);
             setStatus("Failed to log out.");
@@ -412,10 +420,51 @@ function App() {
         }
     }
 
+    async function handlePasswordUpdate({ currentPassword, newPassword }) {
+        setIsUpdatingPassword(true);
+
+        try {
+            const response = await fetch(`${apiBaseUrl}/api/auth/password`, {
+                method: "PATCH",
+                headers: {
+                    ...getAuthorizationHeader(),
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    currentPassword,
+                    newPassword,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to update password");
+            }
+
+            setStatus("Password updated successfully.");
+            return { success: true };
+        } catch (error) {
+            console.error("Error updating password:", error);
+            setStatus(error.message || "Failed to update password.");
+            return { success: false, error: error.message || "Failed to update password." };
+        } finally {
+            setIsUpdatingPassword(false);
+        }
+    }
+
     return (
         <main className="page-shell">
             {currentUser && (
-                <Sidebar activePage={activePage} setActivePage={setActivePage} />
+                <Sidebar
+                    activePage={activePage}
+                    currentUser={currentUser}
+                    isMobileNavOpen={isMobileNavOpen}
+                    onToggleMobileNav={() => setIsMobileNavOpen((isOpen) => !isOpen)}
+                    onNavigate={handlePageChange}
+                    handleLogout={handleLogout}
+                    isLoggingOut={isLoggingOut}
+                />
             )}
             <section className="main-panel">
                 {!currentUser ? (
@@ -448,14 +497,6 @@ function App() {
                     <>
                         <div className="app-toolbar">
                             <p className="welcome-text">Signed in as {currentUser.username}</p>
-                            <button
-                                type="button"
-                                className="delete-button"
-                                onClick={handleLogout}
-                                disabled={isLoggingOut}
-                            >
-                                {isLoggingOut ? "Logging out..." : "Logout"}
-                            </button>
                         </div>
                         <div className="page-transition" key={activePage}>
                             {activePage === "dashboard" && (
@@ -521,12 +562,14 @@ function App() {
                             )}
 
                             {activePage === "settings" && (
-                                <SettingsPage
-                                    currentUser={currentUser}
-                                    handleLogout={handleLogout}
-                                    isLoggingOut={isLoggingOut}
-                                />
-                            )}
+                            <SettingsPage
+                                currentUser={currentUser}
+                                handleLogout={handleLogout}
+                                isLoggingOut={isLoggingOut}
+                                handlePasswordUpdate={handlePasswordUpdate}
+                                isUpdatingPassword={isUpdatingPassword}
+                            />
+                        )}
                         </div>
                     </>
                 )}

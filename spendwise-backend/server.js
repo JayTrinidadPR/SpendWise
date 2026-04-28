@@ -130,6 +130,58 @@ app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json(req.user);
 });
 
+app.patch("/api/auth/password", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!isNonEmptyString(currentPassword)) {
+      return res.status(400).json({ error: "Current password is required" });
+    }
+
+    if (!isNonEmptyString(newPassword) || newPassword.length < 8) {
+      return res.status(400).json({ error: "New password must be at least 8 characters" });
+    }
+
+    const result = await client.query(
+      `
+      SELECT id, password_hash
+      FROM users
+      WHERE id = $1;
+      `,
+      [userId]
+    );
+
+    const user = result.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const passwordMatches = await bcrypt.compare(currentPassword, user.password_hash);
+
+    if (!passwordMatches) {
+      return res.status(401).json({ error: "Current password is incorrect" });
+    }
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    await client.query(
+      `
+      UPDATE users
+      SET password_hash = $1
+      WHERE id = $2;
+      `,
+      [newPasswordHash, userId]
+    );
+
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 app.post("/api/auth/logout", (req, res) => {
   res.json({ success: true });
 });

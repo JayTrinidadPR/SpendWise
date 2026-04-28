@@ -62,6 +62,10 @@ select {
     top: 32px;
 }
 
+.sidebar-header {
+    display: contents;
+}
+
 .brand {
     margin-bottom: 28px;
 }
@@ -124,6 +128,44 @@ select {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.sidebar-content {
+    display: contents;
+}
+
+.sidebar-mobile-meta {
+    display: none;
+}
+
+.sidebar-toggle {
+    display: none;
+}
+
+.sidebar-session {
+    margin-top: 10px;
+    padding: 18px;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(117, 92, 72, 0.08);
+    display: grid;
+    gap: 6px;
+}
+
+.sidebar-session strong {
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.sidebar-session span {
+    color: var(--muted);
+    font-size: 0.92rem;
+    word-break: break-word;
+}
+
+.sidebar-logout-button {
+    margin-top: 10px;
+    width: 100%;
 }
 
 .nav-button {
@@ -335,6 +377,10 @@ select {
     margin-top: 0;
 }
 
+.dashboard-summary-strip {
+    align-items: stretch;
+}
+
 .dashboard-metric-card {
     min-height: 132px;
     position: relative;
@@ -376,13 +422,48 @@ select {
     aspect-ratio: 1;
     border-radius: 50%;
     display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
     place-items: center;
+    position: relative;
     box-shadow: inset 0 0 0 1px rgba(117, 92, 72, 0.08);
+}
+
+.dashboard-donut-svg {
+    width: 100%;
+    height: 100%;
+    grid-area: 1 / 1;
+    outline: none;
+}
+
+.dashboard-donut-svg:focus,
+.dashboard-donut-svg:focus-visible {
+    outline: none;
+}
+
+.dashboard-donut-segment {
+    cursor: pointer;
+    transform-origin: 50% 50%;
+    transition: transform 180ms ease, filter 180ms ease, opacity 180ms ease;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-donut-segment:hover,
+.dashboard-donut-segment:focus-visible,
+.dashboard-donut-segment.is-active {
+    filter: brightness(1.04) saturate(1.08);
+    transform: scale(1.03);
+}
+
+.dashboard-donut-segment:focus-visible {
+    outline: none;
 }
 
 .dashboard-donut-center {
     width: 56%;
     aspect-ratio: 1;
+    grid-area: 1 / 1;
     border-radius: 50%;
     display: grid;
     place-items: center;
@@ -402,6 +483,13 @@ select {
 .dashboard-donut-center strong {
     font-size: 1.35rem;
     color: var(--text);
+}
+
+.dashboard-donut-center small {
+    margin-top: 2px;
+    font-size: 0.76rem;
+    line-height: 1.35;
+    color: var(--muted);
 }
 
 .dashboard-chart-legend {
@@ -640,6 +728,23 @@ select {
     color: #214867;
     background: rgba(127, 179, 213, 0.14);
     white-space: nowrap;
+}
+
+.workspace-section-header-collapsible {
+    align-items: center;
+}
+
+.workspace-section-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.workspace-toggle-button {
+    margin-top: 0;
+    width: fit-content;
 }
 
 .workspace-inline-fields {
@@ -942,6 +1047,30 @@ select {
 
 .settings-session-text {
     margin-bottom: 18px;
+}
+
+.settings-password-section {
+    margin-top: 24px;
+}
+
+.settings-password-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.settings-password-form {
+    max-width: 560px;
+}
+
+.settings-password-toggle {
+    margin-top: 0;
+    width: fit-content;
+}
+
+.settings-password-feedback {
+    margin-top: 16px;
 }
 
 .landing-shell {
@@ -1272,6 +1401,13 @@ select {
         padding: 16px;
     }
 
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
     .main-panel {
         padding: 20px;
     }
@@ -1279,7 +1415,6 @@ select {
     .brand {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         gap: 12px;
         margin-bottom: 0;
     }
@@ -1289,22 +1424,60 @@ select {
         font-size: 1.2rem;
     }
 
-    .sidebar-nav {
-        flex-direction: row;
-        gap: 8px;
-        overflow-x: auto;
-        padding-bottom: 4px;
-        scrollbar-width: none;
+    .sidebar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(47, 64, 88, 0.14);
+        border-radius: 999px;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--text);
+        font-weight: 600;
+        cursor: pointer;
+        flex: 0 0 auto;
     }
 
-    .sidebar-nav::-webkit-scrollbar {
+    .sidebar-content {
         display: none;
     }
 
+    .sidebar-mobile-open .sidebar-content {
+        display: grid;
+        gap: 14px;
+    }
+
+    .sidebar-mobile-meta {
+        display: grid;
+        gap: 4px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.62);
+        border: 1px solid rgba(117, 92, 72, 0.08);
+    }
+
+    .sidebar-mobile-meta strong {
+        text-transform: capitalize;
+        color: var(--text);
+        font-size: 1rem;
+    }
+
+    .sidebar-mobile-meta span {
+        color: var(--muted);
+        font-size: 0.92rem;
+    }
+
+    .sidebar-nav {
+        flex-direction: column;
+        gap: 10px;
+        overflow: visible;
+        padding-bottom: 0;
+    }
+
     .nav-button {
-        flex: 0 0 auto;
-        padding: 10px 14px;
-        white-space: nowrap;
+        width: 100%;
+        padding: 12px 14px;
+        white-space: normal;
         font-size: 0.95rem;
     }
 
@@ -1354,6 +1527,19 @@ select {
         gap: 20px;
     }
 
+    .dashboard-summary-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .dashboard-summary-strip .dashboard-metric-card {
+        min-height: 124px;
+    }
+
+    .dashboard-summary-strip .dashboard-metric-card:last-child {
+        grid-column: 1 / -1;
+    }
+
     .dashboard-hero-copy,
     .dashboard-status {
         padding: 22px;
@@ -1370,6 +1556,11 @@ select {
     .dashboard-donut-chart {
         max-width: 260px;
         margin: 0 auto;
+    }
+
+    .dashboard-chart-card p,
+    .dashboard-subsection > p {
+        font-size: 0.96rem;
     }
 
     .dashboard-subsection,
@@ -1391,6 +1582,11 @@ select {
     .workspace-section-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .workspace-section-controls {
+        width: 100%;
+        justify-content: flex-start;
     }
 
     .workspace-inline-fields {
@@ -1416,6 +1612,11 @@ select {
 
     .dashboard-list li span:last-child {
         color: var(--muted);
+    }
+
+    .dashboard-top-list {
+        gap: 12px;
+        margin-top: 16px;
     }
 
     .app-toolbar {
@@ -1556,6 +1757,12 @@ select {
         font-size: clamp(2.1rem, 12vw, 3rem);
     }
 
+    .dashboard-kicker {
+        margin-bottom: 8px;
+        font-size: 0.76rem;
+        letter-spacing: 0.13em;
+    }
+
     .summary-card,
     .dashboard-subsection,
     .settings-hero,
@@ -1575,6 +1782,16 @@ select {
         min-height: 120px;
     }
 
+    .dashboard-hero-copy,
+    .dashboard-status,
+    .dashboard-metric-card {
+        padding: 18px;
+    }
+
+    .dashboard-metric-card {
+        min-height: 0;
+    }
+
     .summary-card h3,
     .landing-preview-amount {
         font-size: 1.9rem;
@@ -1583,6 +1800,58 @@ select {
     .dashboard-status h3,
     .insight-title {
         font-size: 1.6rem;
+    }
+
+    .dashboard-status h3 {
+        margin-bottom: 6px;
+    }
+
+    .dashboard-hero-copy p:last-child,
+    .dashboard-status p:last-child,
+    .workspace-section-header p:last-child {
+        font-size: 0.94rem;
+    }
+
+    .dashboard-status p:last-child {
+        line-height: 1.45;
+    }
+
+    .dashboard-summary-strip {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .dashboard-summary-strip .dashboard-metric-card:last-child {
+        grid-column: auto;
+    }
+
+    .dashboard-chart-layout {
+        gap: 14px;
+        margin-top: 18px;
+    }
+
+    .dashboard-donut-chart {
+        max-width: 220px;
+        margin: 0 auto;
+    }
+
+    .dashboard-donut-center {
+        width: 62%;
+        box-shadow: 0 6px 18px rgba(120, 92, 72, 0.08);
+    }
+
+    .dashboard-donut-center span {
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+    }
+
+    .dashboard-donut-center strong {
+        font-size: 1.15rem;
+    }
+
+    .dashboard-donut-center small {
+        font-size: 0.68rem;
+        line-height: 1.25;
     }
 
     .workspace-hero-copy h2 {
@@ -1601,6 +1870,10 @@ select {
     .workspace-stat-card strong,
     .workspace-record-amount {
         font-size: 1.05rem;
+    }
+
+    .dashboard-metric-card .summary-label {
+        margin-bottom: 10px;
     }
 
     .landing-preview-bars {

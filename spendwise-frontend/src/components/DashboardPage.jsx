@@ -1,3 +1,30 @@
+import { useState } from "react";
+
+function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+
+    return {
+        x: centerX + radius * Math.cos(angleInRadians),
+        y: centerY + radius * Math.sin(angleInRadians),
+    };
+}
+
+function describeDonutSegment(centerX, centerY, outerRadius, innerRadius, startAngle, endAngle) {
+    const outerStart = polarToCartesian(centerX, centerY, outerRadius, endAngle);
+    const outerEnd = polarToCartesian(centerX, centerY, outerRadius, startAngle);
+    const innerStart = polarToCartesian(centerX, centerY, innerRadius, startAngle);
+    const innerEnd = polarToCartesian(centerX, centerY, innerRadius, endAngle);
+    const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+
+    return [
+        `M ${outerStart.x} ${outerStart.y}`,
+        `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 0 ${outerEnd.x} ${outerEnd.y}`,
+        `L ${innerStart.x} ${innerStart.y}`,
+        `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 1 ${innerEnd.x} ${innerEnd.y}`,
+        "Z",
+    ].join(" ");
+}
+
 function DashboardPage({
     totalIncome,
     totalExpenses,
@@ -18,27 +45,36 @@ function DashboardPage({
 
     const totalCategorizedExpenses = expenseCategoryBreakdown.reduce((sum, [, amount]) => sum + amount, 0);
 
-    const chartSegments = expenseCategoryBreakdown
-        .slice(0, 5)
-        .map(([categoryName, amount], index) => ({
+    const visibleChartCategories = expenseCategoryBreakdown.slice(0, 4);
+    const otherCategoryAmount = expenseCategoryBreakdown
+        .slice(4)
+        .reduce((sum, [, amount]) => sum + amount, 0);
+
+    const chartSource =
+        otherCategoryAmount > 0
+            ? [...visibleChartCategories, ["Other", otherCategoryAmount]]
+            : expenseCategoryBreakdown.slice(0, 5);
+
+    const chartSegments = chartSource.map(([categoryName, amount], index, segments) => {
+        const percentage = totalCategorizedExpenses === 0 ? 0 : (amount / totalCategorizedExpenses) * 100;
+        const startPercentage = segments
+            .slice(0, index)
+            .reduce(
+                (sum, [, currentAmount]) =>
+                    sum + (totalCategorizedExpenses === 0 ? 0 : (currentAmount / totalCategorizedExpenses) * 100),
+                0
+            );
+        const endPercentage = startPercentage + percentage;
+
+        return {
             categoryName,
             amount,
             color: categoryColors[index % categoryColors.length],
-            percentage: totalCategorizedExpenses === 0 ? 0 : (amount / totalCategorizedExpenses) * 100,
-        }));
-
-    const chartBackground = chartSegments.length
-        ? `conic-gradient(${chartSegments
-            .map((segment, index) => {
-                const start = chartSegments
-                    .slice(0, index)
-                    .reduce((sum, currentSegment) => sum + currentSegment.percentage, 0);
-                const end = start + segment.percentage;
-
-                return `${segment.color} ${start}% ${end}%`;
-            })
-            .join(", ")})`
-        : "conic-gradient(#eef3f7 0% 100%)";
+            percentage,
+            startAngle: (startPercentage / 100) * 360,
+            endAngle: (endPercentage / 100) * 360,
+        };
+    });
 
     const statusTone =
         remainingBalance > totalIncome * 0.2 ? "stable" : remainingBalance >= 0 ? "watch" : "alert";
@@ -56,6 +92,13 @@ function DashboardPage({
             : statusTone === "watch"
                 ? "You still have a positive balance, but expenses are starting to crowd your budget."
                 : "Spending is ahead of income right now, so this month needs a reset plan.";
+
+    const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
+    const [isActivityOpen, setIsActivityOpen] = useState(false);
+    const [activeChartSegment, setActiveChartSegment] = useState(null);
+
+    const hoveredSegment =
+        activeChartSegment === null ? null : chartSegments[activeChartSegment];
 
     return (
         <section className="panel-section dashboard-layout">
@@ -82,7 +125,7 @@ function DashboardPage({
                 </p>
             )}
 
-            <div className="summary-grid dashboard-summary-grid">
+            <div className="summary-grid dashboard-summary-grid dashboard-summary-strip">
                 <article className="summary-card income-card dashboard-metric-card">
                     <p className="summary-label">Total Income</p>
                     <h3>${totalIncome.toFixed(2)}</h3>
@@ -101,41 +144,86 @@ function DashboardPage({
 
             <div className="dashboard-overview-grid">
                 <section className="dashboard-subsection dashboard-chart-card">
-                    <h3>Expense Breakdown</h3>
-                    <p>A quick visual read on where your spending is concentrated.</p>
+                    <div className="workspace-section-header workspace-section-header-collapsible">
+                        <div>
+                            <h3>Expense Breakdown</h3>
+                            <p>A quick visual read on where your spending is concentrated.</p>
+                        </div>
+                        <div className="workspace-section-controls">
+                            <button
+                                type="button"
+                                className="button auth-switch-button workspace-toggle-button"
+                                onClick={() => setIsBreakdownOpen((isOpen) => !isOpen)}
+                            >
+                                {isBreakdownOpen ? "Hide Breakdown" : "Show Breakdown"}
+                            </button>
+                        </div>
+                    </div>
 
                     {chartSegments.length === 0 ? (
                         <p>No categorized expenses yet.</p>
                     ) : (
                         <div className="dashboard-chart-layout">
-                            <div
-                                className="dashboard-donut-chart"
-                                style={{ background: chartBackground }}
-                                aria-hidden="true"
-                            >
+                            <div className="dashboard-donut-chart" role="img" aria-label="Expense breakdown chart">
+                                <svg
+                                    className="dashboard-donut-svg"
+                                    viewBox="0 0 100 100"
+                                    aria-hidden="true"
+                                    focusable="false"
+                                >
+                                    {chartSegments.map((segment, index) => (
+                                        <path
+                                            key={segment.categoryName}
+                                            d={describeDonutSegment(50, 50, 50, 28, segment.startAngle, segment.endAngle)}
+                                            fill={segment.color}
+                                            className={`dashboard-donut-segment${activeChartSegment === index ? " is-active" : ""}`}
+                                            onMouseEnter={() => setActiveChartSegment(index)}
+                                            onMouseLeave={() => setActiveChartSegment(null)}
+                                            onFocus={() => setActiveChartSegment(index)}
+                                            onBlur={() => setActiveChartSegment(null)}
+                                            onClick={() =>
+                                                setActiveChartSegment((currentIndex) =>
+                                                    currentIndex === index ? null : index
+                                                )
+                                            }
+                                            tabIndex={0}
+                                        />
+                                    ))}
+                                </svg>
                                 <div className="dashboard-donut-center">
-                                    <span>Tracked</span>
-                                    <strong>${totalCategorizedExpenses.toFixed(0)}</strong>
+                                    <span>{hoveredSegment ? hoveredSegment.categoryName : "Tracked"}</span>
+                                    <strong>
+                                        ${hoveredSegment
+                                            ? hoveredSegment.amount.toFixed(0)
+                                            : totalCategorizedExpenses.toFixed(0)}
+                                    </strong>
+                                    <small>
+                                        {hoveredSegment
+                                            ? `${hoveredSegment.percentage.toFixed(0)}% of spending`
+                                            : "Hover or tap a slice"}
+                                    </small>
                                 </div>
                             </div>
 
-                            <ul className="dashboard-chart-legend">
-                                {chartSegments.map((segment) => (
-                                    <li key={segment.categoryName}>
-                                        <span
-                                            className="dashboard-legend-swatch"
-                                            style={{ backgroundColor: segment.color }}
-                                        />
-                                        <div>
-                                            <strong>{segment.categoryName}</strong>
-                                            <span>
-                                                ${segment.amount.toFixed(2)} ·{" "}
-                                                {segment.percentage.toFixed(0)}%
-                                            </span>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                            {isBreakdownOpen && (
+                                <ul className="dashboard-chart-legend">
+                                    {chartSegments.map((segment) => (
+                                        <li key={segment.categoryName}>
+                                            <span
+                                                className="dashboard-legend-swatch"
+                                                style={{ backgroundColor: segment.color }}
+                                            />
+                                            <div>
+                                                <strong>{segment.categoryName}</strong>
+                                                <span>
+                                                    ${segment.amount.toFixed(2)} ·{" "}
+                                                    {segment.percentage.toFixed(0)}%
+                                                </span>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                     )}
                 </section>
@@ -177,36 +265,52 @@ function DashboardPage({
                     </section>
 
                     <section className="dashboard-subsection">
-                        <h3>Recent Activity</h3>
-
-                        {recentExpenses.length === 0 && recentIncomeSources.length === 0 ? (
-                            <p>No budget activity yet.</p>
-                        ) : (
-                            <div className="dashboard-activity-columns">
-                                <div>
-                                    <p className="dashboard-mini-heading">Recent Expenses</p>
-                                    <ul className="dashboard-list dashboard-compact-list">
-                                        {recentExpenses.slice(0, 3).map((expense) => (
-                                            <li key={expense.id}>
-                                                <span>{expense.title}</span>
-                                                <span>${Number(expense.amount).toFixed(2)}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-
-                                <div>
-                                    <p className="dashboard-mini-heading">Recent Income</p>
-                                    <ul className="dashboard-list dashboard-compact-list">
-                                        {recentIncomeSources.slice(0, 3).map((source) => (
-                                            <li key={source.id}>
-                                                <span>{source.source_name}</span>
-                                                <span>${Number(source.amount).toFixed(2)}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                        <div className="workspace-section-header workspace-section-header-collapsible">
+                            <div>
+                                <h3>Recent Activity</h3>
+                                <p>Latest expense and income movement in one place.</p>
                             </div>
+                            <div className="workspace-section-controls">
+                                <button
+                                    type="button"
+                                    className="button auth-switch-button workspace-toggle-button"
+                                    onClick={() => setIsActivityOpen((isOpen) => !isOpen)}
+                                >
+                                    {isActivityOpen ? "Hide Activity" : "Show Activity"}
+                                </button>
+                            </div>
+                        </div>
+
+                        {isActivityOpen && (
+                            recentExpenses.length === 0 && recentIncomeSources.length === 0 ? (
+                                <p>No budget activity yet.</p>
+                            ) : (
+                                <div className="dashboard-activity-columns">
+                                    <div>
+                                        <p className="dashboard-mini-heading">Recent Expenses</p>
+                                        <ul className="dashboard-list dashboard-compact-list">
+                                            {recentExpenses.slice(0, 3).map((expense) => (
+                                                <li key={expense.id}>
+                                                    <span>{expense.title}</span>
+                                                    <span>${Number(expense.amount).toFixed(2)}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+
+                                    <div>
+                                        <p className="dashboard-mini-heading">Recent Income</p>
+                                        <ul className="dashboard-list dashboard-compact-list">
+                                            {recentIncomeSources.slice(0, 3).map((source) => (
+                                                <li key={source.id}>
+                                                    <span>{source.source_name}</span>
+                                                    <span>${Number(source.amount).toFixed(2)}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            )
                         )}
                     </section>
                 </div>
